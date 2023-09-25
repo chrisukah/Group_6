@@ -1,6 +1,6 @@
 ---
 title: "Group 6 Milestone 1"
-author: "Ukah Chrisantus Eweh, Ngu Claudia Ngea"
+author: "Ukah Chrisantus Eweh, Ngu Claudia Ngeha"
 date: "2023-09-25"
 output: pdf_document
 ---
@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## R Markdown
 #Project option selection:
 
-Scenario 1
+Scenario 1: Flu outbreak (simulated) and vaccine uptake in California
 
 #Group github linkd:
 
