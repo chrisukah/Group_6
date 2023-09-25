@@ -1,0 +1,49 @@
+---
+title: "Group 6 Milestone 1"
+author: "Ukah Chrisantus Eweh, Ngu Claudia Ngea"
+date: "2023-09-25"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+#Project option selection:
+
+Scenario 1
+
+#Group github linkd:
+
+https://github.com/chrisukah/Group_6
+
+## Roles and Responsiblities:
+
+#Prefedrred communication: 
+
+Text
+
+#preferred time and frequency:
+
+Saturdays and Mondays at 4pm (WAT)
+
+#Preferred method for tracking progress: 
+
+Text and github monitoring
+
+#Point person for contacting course fascilitators with questions: 
+
+Ukah Chrisantus E.
+
+#Non-academic commitments that can affect members availability : 
+
+Family
+
+#Meeting tempo: 
+
+Checking in
+
+#Date and time to meet with course fascilitator: 
+
+Wednesday, 09/27/2023, 7pm (WAT)
