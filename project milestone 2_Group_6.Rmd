@@ -1,5 +1,5 @@
 ---
-title: "Problem set 1"
+title: "Project Milestone 2"
 author: "Ukah Chrisantus Eweh, Ngu Claudia Ngeha"
 date: "2023-10-02"
 output: html_document
@@ -35,10 +35,12 @@ df
 
 ```{r}
 sim_flu_ca <- read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/sim_flu_CA.csv")
+sim_flu_ca
 ```
 
 ```{r}
 sim_flu_la <- read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/sim_flu_LACounty.csv")
+sim_flu_la
 ```
 
 #Document the import process
@@ -53,4 +55,31 @@ The process was as foolows;
  as follows;
  library(readr)
  dataset <- read_csv (datasetpath)
+ 
+ 
+ ##IDENTIFY DATA TYPES FOR 5+ DATA ELEMENTS/COLUMNS/VARIABLES
+ 
+```{r}
+str(ca_vax_rate) #ca_vax_rate dataset
+```
+ 
+```{r}
+str(sim_flu_la)
+```
+```{r}
+str(sim_flu_la)
+```
+ 
+ UTILIZE FUNCTIONS OR RESOURCES IN RSTUDIO TO DETERMINE THE TYPES OF EACH OF EACH DATA ELEMENT
+ 
+```{r}
+sapply(ca_vax_rate, class) #sapply() is used along with class() to determine the types of all variables in a dataset
+```
+```{r}
+sapply(sim_flu_la, class)
+```
+```{r}
+sapply(sim_flu_la, class)
+```
+ 
  
