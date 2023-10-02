@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #Project option selection:
 
-Scenario 1
+Scenario 1: Flu outbreak (simulated) and vaccine uptake in California
 
 #Group github linkd:
 

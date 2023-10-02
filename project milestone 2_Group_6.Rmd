@@ -1,0 +1,56 @@
+---
+title: "Problem set 1"
+author: "Ukah Chrisantus Eweh, Ngu Claudia Ngeha"
+date: "2023-10-02"
+output: html_document
+---
+
+
+##Description of dataset
+#What is the data source? (1-2 sentences on where the data is coming from, dates included, etc.)
+The data is simulated data that represents Flu outbreak and vaccine uptake for the entire state of California during fall 2023.This scenario contains demographic (age category, gender, race/ethnicity), geographic (county), morbidity, disease severity, and county and regional vaccination data from the simulated flu season.
+
+#How does the dataset relate to the group problem statement and question?
+The datasets contains the different variables necessary for calculation of vaccination rate for flu and to carryout the comparative analysis with that of Covid vaccine.
+
+#Import statements for all datasets
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(stringr)
+ca_vax_rate <- read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/ca_vax_rates_quarter.csv")
+ca_vax_rate
+
+#Utilize function arguments to control relevant components (i.e. change column types, column names, missing values, etc.)
+
+df <- ca_vax_rate %>%
+rename_all(tolower) %>% # Convert column names to lowercase
+rename_all(~gsub(" ", "", .)) %>% # Remove spaces from column names
+rename(population = estimatedpopulation)
+df
+
+```
+
+```{r}
+sim_flu_ca <- read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/sim_flu_CA.csv")
+```
+
+```{r}
+sim_flu_la <- read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/sim_flu_LACounty.csv")
+```
+
+#Document the import process
+The process was as foolows;
+ -PHW251 repository was opened from github
+ -The scenario(scenario 1 dataset) was opened
+ -Each of the dataset to be imported in the scenario was opened to get the url
+ link
+ -We clicked on "Raw" and the url of the dataset appeared on the browser which was then copied
+ -Rstudio was opened and the library readr was loaded
+ -The function read_csv was used to load the data into 
+ as follows;
+ library(readr)
+ dataset <- read_csv (datasetpath)
+ 
