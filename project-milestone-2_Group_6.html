@@ -9,11 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Ukah Chrisantus Eweh, Ngu Claudia Ngea" />
+<meta name="author" content="Ukah Chrisantus Eweh, Ngu Claudia Ngeha" />
 
 <meta name="date" content="2023-10-02" />
 
-<title>Problem set 1</title>
+<title>Project Milestone 2</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,20 +350,21 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Problem set 1</h1>
-<h4 class="author">Ukah Chrisantus Eweh, Ngu Claudia Ngea</h4>
+<h1 class="title toc-ignore">Project Milestone 2</h1>
+<h4 class="author">Ukah Chrisantus Eweh, Ngu Claudia Ngeha</h4>
 <h4 class="date">2023-10-02</h4>
 
 </div>
 
 
-<p>##Description of dataset #What is the data source? (1-2 sentences on
-where the data is coming from, dates included, etc.) The data is
-simulated data that represents Flu outbreak and vaccine uptake for the
-entire state of California during fall 2023.This scenario contains
-demographic (age category, gender, race/ethnicity), geographic (county),
-morbidity, disease severity, and county and regional vaccination data
-from the simulated flu season.</p>
+<p>##Description of dataset</p>
+<p>#What is the data source? (1-2 sentences on where the data is coming
+from, dates included, etc.) The data is simulated data that represents
+Flu outbreak and vaccine uptake for the entire state of California
+during fall 2023.This scenario contains demographic (age category,
+gender, race/ethnicity), geographic (county), morbidity, disease
+severity, and county and regional vaccination data from the simulated
+flu season.</p>
 <p>#How does the dataset relate to the group problem statement and
 question? The datasets contains the different variables necessary for
 calculation of vaccination rate for flu and to carryout the comparative
@@ -381,9 +382,18 @@ library(dplyr)</code></pre>
 ##     intersect, setdiff, setequal, union</code></pre>
 <pre class="r"><code>library(tidyr)
 library(stringr)
-ca_vax_rate &lt;- read_csv(&quot;https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/ca_vax_rates_quarter.csv&quot;)</code></pre>
-<pre><code>## Rows: 13533 Columns: 13</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+library(tidyverse)</code></pre>
+<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ forcats   1.0.0     ✔ purrr     1.0.2
+## ✔ ggplot2   3.4.2     ✔ tibble    3.2.1
+## ✔ lubridate 1.9.2</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<pre class="r"><code>ca_vax_rate &lt;- read_csv(&quot;https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/ca_vax_rates_quarter.csv&quot;)</code></pre>
+<pre><code>## Rows: 13533 Columns: 13
+## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr  (4): County Name, County Type, Demographic Category, Demographic Value
 ## dbl  (6): Estimated Population, Total Partial Vaccinated, Cumulative Fully V...
@@ -411,7 +421,9 @@ ca_vax_rate &lt;- read_csv(&quot;https://raw.githubusercontent.com/PHW290/phw251
 ## #   `Total Partial Vaccinated` &lt;dbl&gt;, `Cumulative Fully Vaccinated` &lt;dbl&gt;,
 ## #   `Cumulative At Least ONe Dose` &lt;dbl&gt;, `Cumulative Unvaccinated` &lt;dbl&gt;,
 ## #   `Suppress Data` &lt;lgl&gt;, `Cumulative Up To Date Vax` &lt;dbl&gt;, Quarter &lt;date&gt;</code></pre>
-<pre class="r"><code>df &lt;- ca_vax_rate %&gt;%
+<pre class="r"><code>#Utilize function arguments to control relevant components (i.e. change column types, column names, missing values, etc.)
+
+df &lt;- ca_vax_rate %&gt;%
 rename_all(tolower) %&gt;% # Convert column names to lowercase
 rename_all(~gsub(&quot; &quot;, &quot;&quot;, .)) %&gt;% # Remove spaces from column names
 rename(population = estimatedpopulation)
@@ -444,6 +456,26 @@ df</code></pre>
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>sim_flu_ca</code></pre>
+<pre><code>## # A tibble: 114,912 × 18
+##    county         time_int new_infections new_recovered count_susceptible
+##    &lt;chr&gt;             &lt;dbl&gt;          &lt;dbl&gt;         &lt;dbl&gt;             &lt;dbl&gt;
+##  1 Alameda County   202240            121             0             46000
+##  2 Alameda County   202241             75           119             45925
+##  3 Alameda County   202242             76            77             45849
+##  4 Alameda County   202243             89            75             45760
+##  5 Alameda County   202244             54            88             45706
+##  6 Alameda County   202245             68            55             45638
+##  7 Alameda County   202246             66            67             45572
+##  8 Alameda County   202247            195            66             45377
+##  9 Alameda County   202248            339           195             45038
+## 10 Alameda County   202249            160           334             44878
+## # ℹ 114,902 more rows
+## # ℹ 13 more variables: current_infected &lt;dbl&gt;, cumulative_infected &lt;dbl&gt;,
+## #   cumulative_recovered &lt;dbl&gt;, new_unrecovered &lt;dbl&gt;,
+## #   cumulative_unrecovered &lt;dbl&gt;, new_severe &lt;dbl&gt;, cumulative_severe &lt;dbl&gt;,
+## #   age_cat &lt;chr&gt;, sex &lt;chr&gt;, race_ethnicity &lt;dbl&gt;, report_date &lt;date&gt;,
+## #   dt_diagnosis &lt;date&gt;, pop &lt;dbl&gt;</code></pre>
 <pre class="r"><code>sim_flu_la &lt;- read_csv(&quot;https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/sim_flu_LACounty.csv&quot;)</code></pre>
 <pre><code>## Rows: 2016 Columns: 13
 ## ── Column specification ────────────────────────────────────────────────────────
@@ -454,6 +486,291 @@ df</code></pre>
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>sim_flu_la</code></pre>
+<pre><code>## # A tibble: 2,016 × 13
+##    DT_DX     AGE_CATEGORY SEX    RACE_ETH         DT_REPORT DX_NEW RECOVERED_NEW
+##    &lt;chr&gt;     &lt;chr&gt;        &lt;chr&gt;  &lt;chr&gt;            &lt;lgl&gt;      &lt;dbl&gt;         &lt;dbl&gt;
+##  1 03OCT2022 0-17         FEMALE White, Non-Hisp… NA           513             0
+##  2 09OCT2022 0-17         FEMALE White, Non-Hisp… NA           343           508
+##  3 19OCT2022 0-17         FEMALE White, Non-Hisp… NA           340           341
+##  4 26OCT2022 0-17         FEMALE White, Non-Hisp… NA           422           341
+##  5 01NOV2022 0-17         FEMALE White, Non-Hisp… NA           321           421
+##  6 05NOV2022 0-17         FEMALE White, Non-Hisp… NA           366           316
+##  7 07NOV2022 0-17         FEMALE White, Non-Hisp… NA           345           375
+##  8 25NOV2022 0-17         FEMALE White, Non-Hisp… NA           828           336
+##  9 27NOV2022 0-17         FEMALE White, Non-Hisp… NA          1533           819
+## 10 02DEC2022 0-17         FEMALE White, Non-Hisp… NA           760          1529
+## # ℹ 2,006 more rows
+## # ℹ 6 more variables: INFECTED_CURRENT &lt;dbl&gt;, INFECTED_CUMULATIVE &lt;dbl&gt;,
+## #   RECOVERED_CUMULATIVE &lt;dbl&gt;, SUSCEPTIBLE &lt;dbl&gt;, SEVERE_NEW &lt;dbl&gt;,
+## #   SEVERE_CUMULATIVE &lt;dbl&gt;</code></pre>
+<p>#Document the import process The process was as follows;</p>
+<p>-The PHW251 project data repository was opened from github -The
+scenario(scenario 1 dataset) was opened -Each of the dataset to be
+imported in the scenario was opened to get the url link -We clicked on
+“Raw” and the url of the dataset appeared on the browser which was then
+copied -Rstudio was opened and the library readr was loaded -The
+function read_csv was used to load the data into as follows;
+library(readr) dataset &lt;- read_csv (datasetpath)</p>
+<p>##IDENTIFY DATA TYPES FOR 5+ DATA ELEMENTS/COLUMNS/VARIABLES</p>
+<pre class="r"><code>#Clean up column names (recommend using snake case) using the janitor::clean_name () function to transform column names to snake_case
+
+ca_vax_rate1 &lt;- ca_vax_rate %&gt;% janitor::clean_names()
+ca_vax_rate1</code></pre>
+<pre><code>## # A tibble: 13,533 × 13
+##    county_name county_type demographic_category demographic_value
+##    &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;                &lt;chr&gt;            
+##  1 Alameda     MIXED       Age Group            12-17            
+##  2 Alameda     MIXED       Age Group            12-17            
+##  3 Alameda     MIXED       Age Group            12-17            
+##  4 Alameda     MIXED       Age Group            12-17            
+##  5 Alameda     MIXED       Age Group            12-17            
+##  6 Alameda     MIXED       Age Group            12-17            
+##  7 Alameda     MIXED       Age Group            12-17            
+##  8 Alameda     MIXED       Age Group            12-17            
+##  9 Alameda     MIXED       Age Group            12-17            
+## 10 Alameda     MIXED       Age Group            12-17            
+## # ℹ 13,523 more rows
+## # ℹ 9 more variables: estimated_population &lt;dbl&gt;, dt_admin &lt;date&gt;,
+## #   total_partial_vaccinated &lt;dbl&gt;, cumulative_fully_vaccinated &lt;dbl&gt;,
+## #   cumulative_at_least_o_ne_dose &lt;dbl&gt;, cumulative_unvaccinated &lt;dbl&gt;,
+## #   suppress_data &lt;lgl&gt;, cumulative_up_to_date_vax &lt;dbl&gt;, quarter &lt;date&gt;</code></pre>
+<pre class="r"><code>sim_flu_ca1 &lt;- sim_flu_ca %&gt;% janitor::clean_names()
+sim_flu_ca1</code></pre>
+<pre><code>## # A tibble: 114,912 × 18
+##    county         time_int new_infections new_recovered count_susceptible
+##    &lt;chr&gt;             &lt;dbl&gt;          &lt;dbl&gt;         &lt;dbl&gt;             &lt;dbl&gt;
+##  1 Alameda County   202240            121             0             46000
+##  2 Alameda County   202241             75           119             45925
+##  3 Alameda County   202242             76            77             45849
+##  4 Alameda County   202243             89            75             45760
+##  5 Alameda County   202244             54            88             45706
+##  6 Alameda County   202245             68            55             45638
+##  7 Alameda County   202246             66            67             45572
+##  8 Alameda County   202247            195            66             45377
+##  9 Alameda County   202248            339           195             45038
+## 10 Alameda County   202249            160           334             44878
+## # ℹ 114,902 more rows
+## # ℹ 13 more variables: current_infected &lt;dbl&gt;, cumulative_infected &lt;dbl&gt;,
+## #   cumulative_recovered &lt;dbl&gt;, new_unrecovered &lt;dbl&gt;,
+## #   cumulative_unrecovered &lt;dbl&gt;, new_severe &lt;dbl&gt;, cumulative_severe &lt;dbl&gt;,
+## #   age_cat &lt;chr&gt;, sex &lt;chr&gt;, race_ethnicity &lt;dbl&gt;, report_date &lt;date&gt;,
+## #   dt_diagnosis &lt;date&gt;, pop &lt;dbl&gt;</code></pre>
+<pre class="r"><code>sim_flu_la1 &lt;- sim_flu_la %&gt;% janitor::clean_names()
+sim_flu_la1</code></pre>
+<pre><code>## # A tibble: 2,016 × 13
+##    dt_dx     age_category sex    race_eth         dt_report dx_new recovered_new
+##    &lt;chr&gt;     &lt;chr&gt;        &lt;chr&gt;  &lt;chr&gt;            &lt;lgl&gt;      &lt;dbl&gt;         &lt;dbl&gt;
+##  1 03OCT2022 0-17         FEMALE White, Non-Hisp… NA           513             0
+##  2 09OCT2022 0-17         FEMALE White, Non-Hisp… NA           343           508
+##  3 19OCT2022 0-17         FEMALE White, Non-Hisp… NA           340           341
+##  4 26OCT2022 0-17         FEMALE White, Non-Hisp… NA           422           341
+##  5 01NOV2022 0-17         FEMALE White, Non-Hisp… NA           321           421
+##  6 05NOV2022 0-17         FEMALE White, Non-Hisp… NA           366           316
+##  7 07NOV2022 0-17         FEMALE White, Non-Hisp… NA           345           375
+##  8 25NOV2022 0-17         FEMALE White, Non-Hisp… NA           828           336
+##  9 27NOV2022 0-17         FEMALE White, Non-Hisp… NA          1533           819
+## 10 02DEC2022 0-17         FEMALE White, Non-Hisp… NA           760          1529
+## # ℹ 2,006 more rows
+## # ℹ 6 more variables: infected_current &lt;dbl&gt;, infected_cumulative &lt;dbl&gt;,
+## #   recovered_cumulative &lt;dbl&gt;, susceptible &lt;dbl&gt;, severe_new &lt;dbl&gt;,
+## #   severe_cumulative &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#Identify data types for 5+ data elements/columns/variables.  We use the structure function (str()) to get the data dimension and data elements, or apply function and class function to get the dataset elements as demonstrated below
+
+str(ca_vax_rate1) #ca_vax_rate dataset code to determine the dataset elements/variables/columns</code></pre>
+<pre><code>## spc_tbl_ [13,533 × 13] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+##  $ county_name                  : chr [1:13533] &quot;Alameda&quot; &quot;Alameda&quot; &quot;Alameda&quot; &quot;Alameda&quot; ...
+##  $ county_type                  : chr [1:13533] &quot;MIXED&quot; &quot;MIXED&quot; &quot;MIXED&quot; &quot;MIXED&quot; ...
+##  $ demographic_category         : chr [1:13533] &quot;Age Group&quot; &quot;Age Group&quot; &quot;Age Group&quot; &quot;Age Group&quot; ...
+##  $ demographic_value            : chr [1:13533] &quot;12-17&quot; &quot;12-17&quot; &quot;12-17&quot; &quot;12-17&quot; ...
+##  $ estimated_population         : num [1:13533] 120945 120945 120945 120945 120945 ...
+##  $ dt_admin                     : Date[1:13533], format: &quot;2023-08-26&quot; &quot;2023-06-30&quot; ...
+##  $ total_partial_vaccinated     : num [1:13533] 6246 6145 6004 5921 5630 ...
+##  $ cumulative_fully_vaccinated  : num [1:13533] 102666 102665 102641 102510 102290 ...
+##  $ cumulative_at_least_o_ne_dose: num [1:13533] 108957 108855 108690 108472 107955 ...
+##  $ cumulative_unvaccinated      : num [1:13533] 11988 12090 12255 12473 12990 ...
+##  $ suppress_data                : logi [1:13533] FALSE FALSE FALSE FALSE FALSE FALSE ...
+##  $ cumulative_up_to_date_vax    : num [1:13533] 31450 30341 27885 23857 3955 ...
+##  $ quarter                      : Date[1:13533], format: &quot;2023-07-01&quot; &quot;2023-04-01&quot; ...
+##  - attr(*, &quot;spec&quot;)=
+##   .. cols(
+##   ..   `County Name` = col_character(),
+##   ..   `County Type` = col_character(),
+##   ..   `Demographic Category` = col_character(),
+##   ..   `Demographic Value` = col_character(),
+##   ..   `Estimated Population` = col_double(),
+##   ..   `Dt Admin` = col_date(format = &quot;&quot;),
+##   ..   `Total Partial Vaccinated` = col_double(),
+##   ..   `Cumulative Fully Vaccinated` = col_double(),
+##   ..   `Cumulative At Least ONe Dose` = col_double(),
+##   ..   `Cumulative Unvaccinated` = col_double(),
+##   ..   `Suppress Data` = col_logical(),
+##   ..   `Cumulative Up To Date Vax` = col_double(),
+##   ..   Quarter = col_date(format = &quot;&quot;)
+##   .. )
+##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
+<pre class="r"><code>str(sim_flu_la1)</code></pre>
+<pre><code>## spc_tbl_ [2,016 × 13] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+##  $ dt_dx               : chr [1:2016] &quot;03OCT2022&quot; &quot;09OCT2022&quot; &quot;19OCT2022&quot; &quot;26OCT2022&quot; ...
+##  $ age_category        : chr [1:2016] &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; ...
+##  $ sex                 : chr [1:2016] &quot;FEMALE&quot; &quot;FEMALE&quot; &quot;FEMALE&quot; &quot;FEMALE&quot; ...
+##  $ race_eth            : chr [1:2016] &quot;White, Non-Hispanic&quot; &quot;White, Non-Hispanic&quot; &quot;White, Non-Hispanic&quot; &quot;White, Non-Hispanic&quot; ...
+##  $ dt_report           : logi [1:2016] NA NA NA NA NA NA ...
+##  $ dx_new              : num [1:2016] 513 343 340 422 321 ...
+##  $ recovered_new       : num [1:2016] 0 508 341 341 421 ...
+##  $ infected_current    : num [1:2016] 513 348 347 428 328 ...
+##  $ infected_cumulative : num [1:2016] 513 856 1196 1618 1939 ...
+##  $ recovered_cumulative: num [1:2016] 0 508 849 1190 1611 ...
+##  $ susceptible         : num [1:2016] 215280 214937 214597 214175 213854 ...
+##  $ severe_new          : num [1:2016] 0 0 0 1 1 0 1 0 1 1 ...
+##  $ severe_cumulative   : num [1:2016] 0 0 0 1 2 2 3 3 4 5 ...
+##  - attr(*, &quot;spec&quot;)=
+##   .. cols(
+##   ..   DT_DX = col_character(),
+##   ..   AGE_CATEGORY = col_character(),
+##   ..   SEX = col_character(),
+##   ..   RACE_ETH = col_character(),
+##   ..   DT_REPORT = col_logical(),
+##   ..   DX_NEW = col_double(),
+##   ..   RECOVERED_NEW = col_double(),
+##   ..   INFECTED_CURRENT = col_double(),
+##   ..   INFECTED_CUMULATIVE = col_double(),
+##   ..   RECOVERED_CUMULATIVE = col_double(),
+##   ..   SUSCEPTIBLE = col_double(),
+##   ..   SEVERE_NEW = col_double(),
+##   ..   SEVERE_CUMULATIVE = col_double()
+##   .. )
+##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
+<pre class="r"><code># dt_dx, age_category, sex and race_eth are all character variables,dt_report is a logical variable,dx_ new and the rest are all number variables.</code></pre>
+<pre class="r"><code>str(sim_flu_la1)</code></pre>
+<pre><code>## spc_tbl_ [2,016 × 13] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+##  $ dt_dx               : chr [1:2016] &quot;03OCT2022&quot; &quot;09OCT2022&quot; &quot;19OCT2022&quot; &quot;26OCT2022&quot; ...
+##  $ age_category        : chr [1:2016] &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; ...
+##  $ sex                 : chr [1:2016] &quot;FEMALE&quot; &quot;FEMALE&quot; &quot;FEMALE&quot; &quot;FEMALE&quot; ...
+##  $ race_eth            : chr [1:2016] &quot;White, Non-Hispanic&quot; &quot;White, Non-Hispanic&quot; &quot;White, Non-Hispanic&quot; &quot;White, Non-Hispanic&quot; ...
+##  $ dt_report           : logi [1:2016] NA NA NA NA NA NA ...
+##  $ dx_new              : num [1:2016] 513 343 340 422 321 ...
+##  $ recovered_new       : num [1:2016] 0 508 341 341 421 ...
+##  $ infected_current    : num [1:2016] 513 348 347 428 328 ...
+##  $ infected_cumulative : num [1:2016] 513 856 1196 1618 1939 ...
+##  $ recovered_cumulative: num [1:2016] 0 508 849 1190 1611 ...
+##  $ susceptible         : num [1:2016] 215280 214937 214597 214175 213854 ...
+##  $ severe_new          : num [1:2016] 0 0 0 1 1 0 1 0 1 1 ...
+##  $ severe_cumulative   : num [1:2016] 0 0 0 1 2 2 3 3 4 5 ...
+##  - attr(*, &quot;spec&quot;)=
+##   .. cols(
+##   ..   DT_DX = col_character(),
+##   ..   AGE_CATEGORY = col_character(),
+##   ..   SEX = col_character(),
+##   ..   RACE_ETH = col_character(),
+##   ..   DT_REPORT = col_logical(),
+##   ..   DX_NEW = col_double(),
+##   ..   RECOVERED_NEW = col_double(),
+##   ..   INFECTED_CURRENT = col_double(),
+##   ..   INFECTED_CUMULATIVE = col_double(),
+##   ..   RECOVERED_CUMULATIVE = col_double(),
+##   ..   SUSCEPTIBLE = col_double(),
+##   ..   SEVERE_NEW = col_double(),
+##   ..   SEVERE_CUMULATIVE = col_double()
+##   .. )
+##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
+<p>UTILIZE FUNCTIONS OR RESOURCES IN RSTUDIO TO DETERMINE THE TYPES OF
+EACH OF EACH DATA ELEMENT</p>
+<pre class="r"><code>sapply(ca_vax_rate1, class) #sapply() is used along with class() to determine the types of all variables in a dataset as seen below;character,numeric,date,logical</code></pre>
+<pre><code>##                   county_name                   county_type 
+##                   &quot;character&quot;                   &quot;character&quot; 
+##          demographic_category             demographic_value 
+##                   &quot;character&quot;                   &quot;character&quot; 
+##          estimated_population                      dt_admin 
+##                     &quot;numeric&quot;                        &quot;Date&quot; 
+##      total_partial_vaccinated   cumulative_fully_vaccinated 
+##                     &quot;numeric&quot;                     &quot;numeric&quot; 
+## cumulative_at_least_o_ne_dose       cumulative_unvaccinated 
+##                     &quot;numeric&quot;                     &quot;numeric&quot; 
+##                 suppress_data     cumulative_up_to_date_vax 
+##                     &quot;logical&quot;                     &quot;numeric&quot; 
+##                       quarter 
+##                        &quot;Date&quot;</code></pre>
+<pre class="r"><code>sapply(sim_flu_la1, class)# function to determine the types of each data element  </code></pre>
+<pre><code>##                dt_dx         age_category                  sex 
+##          &quot;character&quot;          &quot;character&quot;          &quot;character&quot; 
+##             race_eth            dt_report               dx_new 
+##          &quot;character&quot;            &quot;logical&quot;            &quot;numeric&quot; 
+##        recovered_new     infected_current  infected_cumulative 
+##            &quot;numeric&quot;            &quot;numeric&quot;            &quot;numeric&quot; 
+## recovered_cumulative          susceptible           severe_new 
+##            &quot;numeric&quot;            &quot;numeric&quot;            &quot;numeric&quot; 
+##    severe_cumulative 
+##            &quot;numeric&quot;</code></pre>
+<pre class="r"><code>sapply(sim_flu_la1, class)</code></pre>
+<pre><code>##                dt_dx         age_category                  sex 
+##          &quot;character&quot;          &quot;character&quot;          &quot;character&quot; 
+##             race_eth            dt_report               dx_new 
+##          &quot;character&quot;            &quot;logical&quot;            &quot;numeric&quot; 
+##        recovered_new     infected_current  infected_cumulative 
+##            &quot;numeric&quot;            &quot;numeric&quot;            &quot;numeric&quot; 
+## recovered_cumulative          susceptible           severe_new 
+##            &quot;numeric&quot;            &quot;numeric&quot;            &quot;numeric&quot; 
+##    severe_cumulative 
+##            &quot;numeric&quot;</code></pre>
+<p>#will you need to convert any columns to numeric or another type?</p>
+<p>Yes we might convert sex to factor (numeric;1,2) using as.factor
+depending on the type of analysis we may be asked to run otherwise we
+could still leave sex as character variable (female,male).</p>
+<p>#Provide a basic description of the 5+ data elements #Numeric: mean,
+median, range`{r}</p>
+<pre class="r"><code>#descriptive statistics using summarise function for measures of central tendency;mean,median sd,range for numeric 
+
+df2 &lt;- ca_vax_rate1 %&gt;%
+  summarise(mean_tot_partial_vac = mean(total_partial_vaccinated, na.rm=TRUE),
+mean_cumul_fully_vac = mean(cumulative_fully_vaccinated, na.rm=TRUE),
+median_cumul_up_to_date_vax=median (cumulative_up_to_date_vax, na.rm=TRUE),
+min_cumul_at_least_0_ne_dose= min(cumulative_at_least_o_ne_dose, na.rm=TRUE),
+max_cumul_at_least_0_ne_dose= max(cumulative_up_to_date_vax, na.rm=TRUE),
+sd_cumul_unvac=sd(cumulative_unvaccinated, na.rm=TRUE))
+df2</code></pre>
+<pre><code>## # A tibble: 1 × 6
+##   mean_tot_partial_vac mean_cumul_fully_vac median_cumul_up_to_date_vax
+##                  &lt;dbl&gt;                &lt;dbl&gt;                       &lt;dbl&gt;
+## 1               16331.              133568.                           1
+## # ℹ 3 more variables: min_cumul_at_least_0_ne_dose &lt;dbl&gt;,
+## #   max_cumul_at_least_0_ne_dose &lt;dbl&gt;, sd_cumul_unvac &lt;dbl&gt;</code></pre>
+<pre class="r"><code>median(ca_vax_rate1$total_partial_vaccinated, na.rm=TRUE)</code></pre>
+<pre><code>## [1] 636.5</code></pre>
+<pre class="r"><code>range(ca_vax_rate1$cumulative_unvaccinated, na.rm=TRUE)</code></pre>
+<pre><code>## [1]        0 20035473</code></pre>
+<pre class="r"><code>mean(ca_vax_rate1$estimated_population, na.rm=TRUE)</code></pre>
+<pre><code>## [1] 271525.9</code></pre>
+<p>#Character: unique values/categories Or any other descriptives that
+will be useful to the analysis</p>
+<pre class="r"><code>table (ca_vax_rate1$demographic_category) #frequency table of a specific variable(demographic_category) in a data set </code></pre>
+<pre><code>## 
+##      Age Group         Gender Race/Ethnicity 
+##           4602           2028           6903</code></pre>
+<pre class="r"><code>unique(ca_vax_rate1$demographic_category)# unique function shows the diffrent levels in a character variable</code></pre>
+<pre><code>## [1] &quot;Age Group&quot;      &quot;Gender&quot;         &quot;Race/Ethnicity&quot;</code></pre>
+<pre class="r"><code>sim_flu_ca1 %&gt;% distinct(sex) # for disticnt variables found in the column sex</code></pre>
+<pre><code>## # A tibble: 2 × 1
+##   sex   
+##   &lt;chr&gt; 
+## 1 FEMALE
+## 2 MALE</code></pre>
+<p>#Describe cleaning that each data source may need</p>
+<p>-In the dataset ca_vax_rate, the columns; demographic_category and
+demographic levels needs cleaning and re-categorization.</p>
+<ul>
+<li><p>When using the datasets ( all three data sets), they have to be
+cleaned by removing “NA” (missing variables) using logic
+functions.</p></li>
+<li><p>Rate of flu vaccination column has to be calculated and inserted
+in the data set for flu vaccination using the mutate function.</p></li>
+<li><p>The two data sets ca_vax_rate(for covid vaccinnation rate) and
+the dataset, sim_flu_ca needs to be joint for correlation analysis to be
+done.</p></li>
+<li><p>Sex variable needs to be converted from character variable (male
+and female) to as.factor (1,2) for easy manipulation in data
+set</p></li>
+</ul>
 
 
 
