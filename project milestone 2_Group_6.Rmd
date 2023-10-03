@@ -2,7 +2,9 @@
 title: "Project Milestone 2"
 author: "Ukah Chrisantus Eweh, Ngu Claudia Ngeha"
 date: "2023-10-02"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 
@@ -15,6 +17,7 @@ The data is simulated data that represents Flu outbreak and vaccine uptake for t
 The datasets contains the different variables necessary for calculation of vaccination rate for flu and to carryout the comparative analysis with that of Covid vaccine.
 
 #Import statements for all datasets
+
 
 ```{r}
 library(readr)
@@ -127,7 +130,7 @@ mean(ca_vax_rate1$estimated_population, na.rm=TRUE)
 
 #Character:  unique values/categories
 Or any other descriptives that will be useful to the analysis
-```{r}
+```{r freq}
 
 table (ca_vax_rate1$demographic_category) #frequency table of a specific variable(demographic_category) in a data set 
 
