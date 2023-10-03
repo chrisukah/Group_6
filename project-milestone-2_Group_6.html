@@ -357,14 +357,13 @@ display: none;
 </div>
 
 
-<p>##Description of dataset</p>
-<p>#What is the data source? (1-2 sentences on where the data is coming
-from, dates included, etc.) The data is simulated data that represents
-Flu outbreak and vaccine uptake for the entire state of California
-during fall 2023.This scenario contains demographic (age category,
-gender, race/ethnicity), geographic (county), morbidity, disease
-severity, and county and regional vaccination data from the simulated
-flu season.</p>
+<p>##Description of dataset #What is the data source? (1-2 sentences on
+where the data is coming from, dates included, etc.) The data is
+simulated data that represents Flu outbreak and vaccine uptake for the
+entire state of California during fall 2023.This scenario contains
+demographic (age category, gender, race/ethnicity), geographic (county),
+morbidity, disease severity, and county and regional vaccination data
+from the simulated flu season.</p>
 <p>#How does the dataset relate to the group problem statement and
 question? The datasets contains the different variables necessary for
 calculation of vaccination rate for flu and to carryout the comparative
@@ -382,18 +381,9 @@ library(dplyr)</code></pre>
 ##     intersect, setdiff, setequal, union</code></pre>
 <pre class="r"><code>library(tidyr)
 library(stringr)
-library(tidyverse)</code></pre>
-<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-## ✔ forcats   1.0.0     ✔ purrr     1.0.2
-## ✔ ggplot2   3.4.2     ✔ tibble    3.2.1
-## ✔ lubridate 1.9.2</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()
-## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-<pre class="r"><code>ca_vax_rate &lt;- read_csv(&quot;https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/ca_vax_rates_quarter.csv&quot;)</code></pre>
-<pre><code>## Rows: 13533 Columns: 13
-## ── Column specification ────────────────────────────────────────────────────────
+ca_vax_rate &lt;- read_csv(&quot;https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/ca_vax_rates_quarter.csv&quot;)</code></pre>
+<pre><code>## Rows: 13533 Columns: 13</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr  (4): County Name, County Type, Demographic Category, Demographic Value
 ## dbl  (6): Estimated Population, Total Partial Vaccinated, Cumulative Fully V...
@@ -504,19 +494,24 @@ df</code></pre>
 ## # ℹ 6 more variables: INFECTED_CURRENT &lt;dbl&gt;, INFECTED_CUMULATIVE &lt;dbl&gt;,
 ## #   RECOVERED_CUMULATIVE &lt;dbl&gt;, SUSCEPTIBLE &lt;dbl&gt;, SEVERE_NEW &lt;dbl&gt;,
 ## #   SEVERE_CUMULATIVE &lt;dbl&gt;</code></pre>
-<p>#Document the import process The process was as follows;</p>
-<p>-The PHW251 project data repository was opened from github -The
-scenario(scenario 1 dataset) was opened -Each of the dataset to be
-imported in the scenario was opened to get the url link -We clicked on
-“Raw” and the url of the dataset appeared on the browser which was then
-copied -Rstudio was opened and the library readr was loaded -The
-function read_csv was used to load the data into as follows;
-library(readr) dataset &lt;- read_csv (datasetpath)</p>
-<p>##IDENTIFY DATA TYPES FOR 5+ DATA ELEMENTS/COLUMNS/VARIABLES</p>
-<pre class="r"><code>#Clean up column names (recommend using snake case) using the janitor::clean_name () function to transform column names to snake_case
+<p>#Document the import process The process was as foolows; -PHW251
+repository was opened from github -The scenario(scenario 1 dataset) was
+opened -Each of the dataset to be imported in the scenario was opened to
+get the url link -We clicked on “Raw” and the url of the dataset
+appeared on the browser which was then copied -Rstudio was opened and
+the library readr was loaded -The function read_csv was used to load the
+data into as follows; library(readr) dataset &lt;- read_csv
+(datasetpath)</p>
+<p>#CLEAN UP COLUMNS NAMES</p>
+<pre class="r"><code># Get the current column names for ca_vax_rate dataset
+col_names &lt;- colnames(ca_vax_rate)
 
-ca_vax_rate1 &lt;- ca_vax_rate %&gt;% janitor::clean_names()
-ca_vax_rate1</code></pre>
+# Clean up column names using snake case
+clean_col_names &lt;- gsub(&quot;[^[:alnum:]]&quot;, &quot;_&quot;, tolower(col_names))
+
+# Assign the cleaned column names back to the dataset
+colnames(ca_vax_rate) &lt;- clean_col_names
+print(ca_vax_rate)</code></pre>
 <pre><code>## # A tibble: 13,533 × 13
 ##    county_name county_type demographic_category demographic_value
 ##    &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;                &lt;chr&gt;            
@@ -533,10 +528,18 @@ ca_vax_rate1</code></pre>
 ## # ℹ 13,523 more rows
 ## # ℹ 9 more variables: estimated_population &lt;dbl&gt;, dt_admin &lt;date&gt;,
 ## #   total_partial_vaccinated &lt;dbl&gt;, cumulative_fully_vaccinated &lt;dbl&gt;,
-## #   cumulative_at_least_o_ne_dose &lt;dbl&gt;, cumulative_unvaccinated &lt;dbl&gt;,
+## #   cumulative_at_least_one_dose &lt;dbl&gt;, cumulative_unvaccinated &lt;dbl&gt;,
 ## #   suppress_data &lt;lgl&gt;, cumulative_up_to_date_vax &lt;dbl&gt;, quarter &lt;date&gt;</code></pre>
-<pre class="r"><code>sim_flu_ca1 &lt;- sim_flu_ca %&gt;% janitor::clean_names()
-sim_flu_ca1</code></pre>
+<pre class="r"><code># Now the column names are in snake case</code></pre>
+<pre class="r"><code># Get the current column names for sim_flu_ca dataset
+col_names &lt;- colnames(sim_flu_ca)
+
+# Clean up column names using snake case
+clean_col_names &lt;- gsub(&quot;[^[:alnum:]]&quot;, &quot;_&quot;, tolower(col_names))
+
+# Assign the cleaned column names back to the dataset
+colnames(sim_flu_ca) &lt;- clean_col_names
+print(sim_flu_ca)</code></pre>
 <pre><code>## # A tibble: 114,912 × 18
 ##    county         time_int new_infections new_recovered count_susceptible
 ##    &lt;chr&gt;             &lt;dbl&gt;          &lt;dbl&gt;         &lt;dbl&gt;             &lt;dbl&gt;
@@ -556,8 +559,16 @@ sim_flu_ca1</code></pre>
 ## #   cumulative_unrecovered &lt;dbl&gt;, new_severe &lt;dbl&gt;, cumulative_severe &lt;dbl&gt;,
 ## #   age_cat &lt;chr&gt;, sex &lt;chr&gt;, race_ethnicity &lt;dbl&gt;, report_date &lt;date&gt;,
 ## #   dt_diagnosis &lt;date&gt;, pop &lt;dbl&gt;</code></pre>
-<pre class="r"><code>sim_flu_la1 &lt;- sim_flu_la %&gt;% janitor::clean_names()
-sim_flu_la1</code></pre>
+<pre class="r"><code># Now the column names are in snake case</code></pre>
+<pre class="r"><code># Get the current column names for sim_flu_la dataset
+col_names &lt;- colnames(sim_flu_la)
+
+# Clean up column names using snake case
+clean_col_names &lt;- gsub(&quot;[^[:alnum:]]&quot;, &quot;_&quot;, tolower(col_names))
+
+# Assign the cleaned column names back to the dataset
+colnames(sim_flu_la) &lt;- clean_col_names
+print(sim_flu_la)</code></pre>
 <pre><code>## # A tibble: 2,016 × 13
 ##    dt_dx     age_category sex    race_eth         dt_report dx_new recovered_new
 ##    &lt;chr&gt;     &lt;chr&gt;        &lt;chr&gt;  &lt;chr&gt;            &lt;lgl&gt;      &lt;dbl&gt;         &lt;dbl&gt;
@@ -575,23 +586,23 @@ sim_flu_la1</code></pre>
 ## # ℹ 6 more variables: infected_current &lt;dbl&gt;, infected_cumulative &lt;dbl&gt;,
 ## #   recovered_cumulative &lt;dbl&gt;, susceptible &lt;dbl&gt;, severe_new &lt;dbl&gt;,
 ## #   severe_cumulative &lt;dbl&gt;</code></pre>
-<pre class="r"><code>#Identify data types for 5+ data elements/columns/variables.  We use the structure function (str()) to get the data dimension and data elements, or apply function and class function to get the dataset elements as demonstrated below
-
-str(ca_vax_rate1) #ca_vax_rate dataset code to determine the dataset elements/variables/columns</code></pre>
+<pre class="r"><code># Now the column names are in snake case</code></pre>
+<p>##IDENTIFY DATA TYPES FOR 5+ DATA ELEMENTS/COLUMNS/VARIABLES</p>
+<pre class="r"><code>str(ca_vax_rate) #Data types for the ca_vax_rate dataset</code></pre>
 <pre><code>## spc_tbl_ [13,533 × 13] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
-##  $ county_name                  : chr [1:13533] &quot;Alameda&quot; &quot;Alameda&quot; &quot;Alameda&quot; &quot;Alameda&quot; ...
-##  $ county_type                  : chr [1:13533] &quot;MIXED&quot; &quot;MIXED&quot; &quot;MIXED&quot; &quot;MIXED&quot; ...
-##  $ demographic_category         : chr [1:13533] &quot;Age Group&quot; &quot;Age Group&quot; &quot;Age Group&quot; &quot;Age Group&quot; ...
-##  $ demographic_value            : chr [1:13533] &quot;12-17&quot; &quot;12-17&quot; &quot;12-17&quot; &quot;12-17&quot; ...
-##  $ estimated_population         : num [1:13533] 120945 120945 120945 120945 120945 ...
-##  $ dt_admin                     : Date[1:13533], format: &quot;2023-08-26&quot; &quot;2023-06-30&quot; ...
-##  $ total_partial_vaccinated     : num [1:13533] 6246 6145 6004 5921 5630 ...
-##  $ cumulative_fully_vaccinated  : num [1:13533] 102666 102665 102641 102510 102290 ...
-##  $ cumulative_at_least_o_ne_dose: num [1:13533] 108957 108855 108690 108472 107955 ...
-##  $ cumulative_unvaccinated      : num [1:13533] 11988 12090 12255 12473 12990 ...
-##  $ suppress_data                : logi [1:13533] FALSE FALSE FALSE FALSE FALSE FALSE ...
-##  $ cumulative_up_to_date_vax    : num [1:13533] 31450 30341 27885 23857 3955 ...
-##  $ quarter                      : Date[1:13533], format: &quot;2023-07-01&quot; &quot;2023-04-01&quot; ...
+##  $ county_name                 : chr [1:13533] &quot;Alameda&quot; &quot;Alameda&quot; &quot;Alameda&quot; &quot;Alameda&quot; ...
+##  $ county_type                 : chr [1:13533] &quot;MIXED&quot; &quot;MIXED&quot; &quot;MIXED&quot; &quot;MIXED&quot; ...
+##  $ demographic_category        : chr [1:13533] &quot;Age Group&quot; &quot;Age Group&quot; &quot;Age Group&quot; &quot;Age Group&quot; ...
+##  $ demographic_value           : chr [1:13533] &quot;12-17&quot; &quot;12-17&quot; &quot;12-17&quot; &quot;12-17&quot; ...
+##  $ estimated_population        : num [1:13533] 120945 120945 120945 120945 120945 ...
+##  $ dt_admin                    : Date[1:13533], format: &quot;2023-08-26&quot; &quot;2023-06-30&quot; ...
+##  $ total_partial_vaccinated    : num [1:13533] 6246 6145 6004 5921 5630 ...
+##  $ cumulative_fully_vaccinated : num [1:13533] 102666 102665 102641 102510 102290 ...
+##  $ cumulative_at_least_one_dose: num [1:13533] 108957 108855 108690 108472 107955 ...
+##  $ cumulative_unvaccinated     : num [1:13533] 11988 12090 12255 12473 12990 ...
+##  $ suppress_data               : logi [1:13533] FALSE FALSE FALSE FALSE FALSE FALSE ...
+##  $ cumulative_up_to_date_vax   : num [1:13533] 31450 30341 27885 23857 3955 ...
+##  $ quarter                     : Date[1:13533], format: &quot;2023-07-01&quot; &quot;2023-04-01&quot; ...
 ##  - attr(*, &quot;spec&quot;)=
 ##   .. cols(
 ##   ..   `County Name` = col_character(),
@@ -609,7 +620,7 @@ str(ca_vax_rate1) #ca_vax_rate dataset code to determine the dataset elements/va
 ##   ..   Quarter = col_date(format = &quot;&quot;)
 ##   .. )
 ##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
-<pre class="r"><code>str(sim_flu_la1)</code></pre>
+<pre class="r"><code>str(sim_flu_la) #Data types for the sim_flu_la dataset</code></pre>
 <pre><code>## spc_tbl_ [2,016 × 13] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
 ##  $ dt_dx               : chr [1:2016] &quot;03OCT2022&quot; &quot;09OCT2022&quot; &quot;19OCT2022&quot; &quot;26OCT2022&quot; ...
 ##  $ age_category        : chr [1:2016] &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; ...
@@ -641,8 +652,7 @@ str(ca_vax_rate1) #ca_vax_rate dataset code to determine the dataset elements/va
 ##   ..   SEVERE_CUMULATIVE = col_double()
 ##   .. )
 ##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
-<pre class="r"><code># dt_dx, age_category, sex and race_eth are all character variables,dt_report is a logical variable,dx_ new and the rest are all number variables.</code></pre>
-<pre class="r"><code>str(sim_flu_la1)</code></pre>
+<pre class="r"><code>str(sim_flu_la) #data types for the sim_flu_la dataset</code></pre>
 <pre><code>## spc_tbl_ [2,016 × 13] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
 ##  $ dt_dx               : chr [1:2016] &quot;03OCT2022&quot; &quot;09OCT2022&quot; &quot;19OCT2022&quot; &quot;26OCT2022&quot; ...
 ##  $ age_category        : chr [1:2016] &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; ...
@@ -676,22 +686,22 @@ str(ca_vax_rate1) #ca_vax_rate dataset code to determine the dataset elements/va
 ##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
 <p>UTILIZE FUNCTIONS OR RESOURCES IN RSTUDIO TO DETERMINE THE TYPES OF
 EACH OF EACH DATA ELEMENT</p>
-<pre class="r"><code>sapply(ca_vax_rate1, class) #sapply() is used along with class() to determine the types of all variables in a dataset as seen below;character,numeric,date,logical</code></pre>
-<pre><code>##                   county_name                   county_type 
-##                   &quot;character&quot;                   &quot;character&quot; 
-##          demographic_category             demographic_value 
-##                   &quot;character&quot;                   &quot;character&quot; 
-##          estimated_population                      dt_admin 
-##                     &quot;numeric&quot;                        &quot;Date&quot; 
-##      total_partial_vaccinated   cumulative_fully_vaccinated 
-##                     &quot;numeric&quot;                     &quot;numeric&quot; 
-## cumulative_at_least_o_ne_dose       cumulative_unvaccinated 
-##                     &quot;numeric&quot;                     &quot;numeric&quot; 
-##                 suppress_data     cumulative_up_to_date_vax 
-##                     &quot;logical&quot;                     &quot;numeric&quot; 
-##                       quarter 
-##                        &quot;Date&quot;</code></pre>
-<pre class="r"><code>sapply(sim_flu_la1, class)# function to determine the types of each data element  </code></pre>
+<pre class="r"><code>sapply(ca_vax_rate, class) #sapply() is used along with class() to determine the types of all variables in a dataset</code></pre>
+<pre><code>##                  county_name                  county_type 
+##                  &quot;character&quot;                  &quot;character&quot; 
+##         demographic_category            demographic_value 
+##                  &quot;character&quot;                  &quot;character&quot; 
+##         estimated_population                     dt_admin 
+##                    &quot;numeric&quot;                       &quot;Date&quot; 
+##     total_partial_vaccinated  cumulative_fully_vaccinated 
+##                    &quot;numeric&quot;                    &quot;numeric&quot; 
+## cumulative_at_least_one_dose      cumulative_unvaccinated 
+##                    &quot;numeric&quot;                    &quot;numeric&quot; 
+##                suppress_data    cumulative_up_to_date_vax 
+##                    &quot;logical&quot;                    &quot;numeric&quot; 
+##                      quarter 
+##                       &quot;Date&quot;</code></pre>
+<pre class="r"><code>sapply(sim_flu_la, class)</code></pre>
 <pre><code>##                dt_dx         age_category                  sex 
 ##          &quot;character&quot;          &quot;character&quot;          &quot;character&quot; 
 ##             race_eth            dt_report               dx_new 
@@ -702,7 +712,7 @@ EACH OF EACH DATA ELEMENT</p>
 ##            &quot;numeric&quot;            &quot;numeric&quot;            &quot;numeric&quot; 
 ##    severe_cumulative 
 ##            &quot;numeric&quot;</code></pre>
-<pre class="r"><code>sapply(sim_flu_la1, class)</code></pre>
+<pre class="r"><code>sapply(sim_flu_la, class)</code></pre>
 <pre><code>##                dt_dx         age_category                  sex 
 ##          &quot;character&quot;          &quot;character&quot;          &quot;character&quot; 
 ##             race_eth            dt_report               dx_new 
@@ -713,64 +723,57 @@ EACH OF EACH DATA ELEMENT</p>
 ##            &quot;numeric&quot;            &quot;numeric&quot;            &quot;numeric&quot; 
 ##    severe_cumulative 
 ##            &quot;numeric&quot;</code></pre>
-<p>#will you need to convert any columns to numeric or another type?</p>
-<p>Yes we might convert sex to factor (numeric;1,2) using as.factor
-depending on the type of analysis we may be asked to run otherwise we
-could still leave sex as character variable (female,male).</p>
-<p>#Provide a basic description of the 5+ data elements #Numeric: mean,
-median, range`{r}</p>
-<pre class="r"><code>#descriptive statistics using summarise function for measures of central tendency;mean,median sd,range for numeric 
+<p>##will you need to convert any columns to numeric or another
+type?</p>
+<p>Yes we might convert sex to factor (numeric;1,2) using as.factor.
+This will the variable “sex” to actually in levels/category and here
+will be able to clearly how the out varies in one sex category as
+compared to the others. asked to run otherwise we could still leave sex
+as character variable (female,male).</p>
+<p>#PROVIDE A BASIC DESCRIPTION OF THE 5+ DATA ELEMENT</p>
+<pre class="r"><code># Numeric data elements for the ca_vax_rate dataset
+numeric_cols &lt;- sapply(ca_vax_rate, is.numeric)  # Identify numeric columns
+numeric_summary &lt;- data.frame(
+  Mean = sapply(ca_vax_rate[, numeric_cols], mean),
+  Median = sapply(ca_vax_rate[, numeric_cols], median),
+  Range = sapply(ca_vax_rate[, numeric_cols], function(x) max(x) - min(x))
+)
 
-df2 &lt;- ca_vax_rate1 %&gt;%
-  summarise(mean_tot_partial_vac = mean(total_partial_vaccinated, na.rm=TRUE),
-mean_cumul_fully_vac = mean(cumulative_fully_vaccinated, na.rm=TRUE),
-median_cumul_up_to_date_vax=median (cumulative_up_to_date_vax, na.rm=TRUE),
-min_cumul_at_least_0_ne_dose= min(cumulative_at_least_o_ne_dose, na.rm=TRUE),
-max_cumul_at_least_0_ne_dose= max(cumulative_up_to_date_vax, na.rm=TRUE),
-sd_cumul_unvac=sd(cumulative_unvaccinated, na.rm=TRUE))
-df2</code></pre>
-<pre><code>## # A tibble: 1 × 6
-##   mean_tot_partial_vac mean_cumul_fully_vac median_cumul_up_to_date_vax
-##                  &lt;dbl&gt;                &lt;dbl&gt;                       &lt;dbl&gt;
-## 1               16331.              133568.                           1
-## # ℹ 3 more variables: min_cumul_at_least_0_ne_dose &lt;dbl&gt;,
-## #   max_cumul_at_least_0_ne_dose &lt;dbl&gt;, sd_cumul_unvac &lt;dbl&gt;</code></pre>
-<pre class="r"><code>median(ca_vax_rate1$total_partial_vaccinated, na.rm=TRUE)</code></pre>
-<pre><code>## [1] 636.5</code></pre>
-<pre class="r"><code>range(ca_vax_rate1$cumulative_unvaccinated, na.rm=TRUE)</code></pre>
-<pre><code>## [1]        0 20035473</code></pre>
-<pre class="r"><code>mean(ca_vax_rate1$estimated_population, na.rm=TRUE)</code></pre>
-<pre><code>## [1] 271525.9</code></pre>
-<p>#Character: unique values/categories Or any other descriptives that
-will be useful to the analysis</p>
-<pre class="r"><code>table (ca_vax_rate1$demographic_category) #frequency table of a specific variable(demographic_category) in a data set </code></pre>
-<pre><code>## 
-##      Age Group         Gender Race/Ethnicity 
-##           4602           2028           6903</code></pre>
-<pre class="r"><code>unique(ca_vax_rate1$demographic_category)# unique function shows the diffrent levels in a character variable</code></pre>
-<pre><code>## [1] &quot;Age Group&quot;      &quot;Gender&quot;         &quot;Race/Ethnicity&quot;</code></pre>
-<pre class="r"><code>sim_flu_ca1 %&gt;% distinct(sex) # for disticnt variables found in the column sex</code></pre>
-<pre><code>## # A tibble: 2 × 1
-##   sex   
-##   &lt;chr&gt; 
-## 1 FEMALE
-## 2 MALE</code></pre>
-<p>#Describe cleaning that each data source may need</p>
-<p>-In the dataset ca_vax_rate, the columns; demographic_category and
-demographic levels needs cleaning and re-categorization.</p>
-<ul>
-<li><p>When using the datasets ( all three data sets), they have to be
-cleaned by removing “NA” (missing variables) using logic
-functions.</p></li>
-<li><p>Rate of flu vaccination column has to be calculated and inserted
-in the data set for flu vaccination using the mutate function.</p></li>
-<li><p>The two data sets ca_vax_rate(for covid vaccinnation rate) and
-the dataset, sim_flu_ca needs to be joint for correlation analysis to be
-done.</p></li>
-<li><p>Sex variable needs to be converted from character variable (male
-and female) to as.factor (1,2) for easy manipulation in data
-set</p></li>
-</ul>
+# Character data elements
+character_cols &lt;- sapply(ca_vax_rate, is.character)  # Identify character columns
+character_summary &lt;- data.frame(
+  Unique_Values = sapply(ca_vax_rate[, character_cols], function(x) length(unique(x)))
+)
+
+# Print the summaries
+print(numeric_summary)</code></pre>
+<pre><code>##                                  Mean Median   Range
+## estimated_population               NA     NA      NA
+## total_partial_vaccinated           NA     NA      NA
+## cumulative_fully_vaccinated        NA     NA      NA
+## cumulative_at_least_one_dose       NA     NA      NA
+## cumulative_unvaccinated            NA     NA      NA
+## cumulative_up_to_date_vax    14108.09      1 4590329</code></pre>
+<pre class="r"><code>print(character_summary)</code></pre>
+<pre><code>##                      Unique_Values
+## county_name                     59
+## county_type                      1
+## demographic_category             3
+## demographic_value               18</code></pre>
+<pre class="r"><code>#In this code, `sapply()` is used to apply the respective functions (`mean()`, `median()`, `function(x) max(x) - min(x)`, and `function(x) length(unique(x))`) to each numeric and character column in the dataset. The results are stored in separate data frames (`numeric_summary` and `character_summary`), and then printed.</code></pre>
+<p>#Please kindly insert the solution for description of 5+ data
+elements here</p>
+<p>#Describe cleaning that each data source may need -In the dataset
+ca_vax_rate, the columns; demographic_category and demographic levels
+needs cleaning and re-categorization. • When using the datasets ( all
+three data sets), they have to be cleaned by removing “NA” (missing
+variables) using logic functions. • Rate of flu vaccination column has
+to be calculated and inserted in the data set for flu vaccination using
+the mutate function. • The two data sets ca_vax_rate(for covid
+vaccinnation rate) and the dataset, sim_flu_ca needs to be joint for
+correlation analysis to be done. • Sex variable needs to be converted
+from character variable (male and female) to as.factor (1,2) for easy
+manipulation in data set</p>
 
 
 
