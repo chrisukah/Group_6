@@ -7,6 +7,7 @@ output: html_document
 
 
 ##Description of dataset
+
 #What is the data source? (1-2 sentences on where the data is coming from, dates included, etc.)
 The data is simulated data that represents Flu outbreak and vaccine uptake for the entire state of California during fall 2023.This scenario contains demographic (age category, gender, race/ethnicity), geographic (county), morbidity, disease severity, and county and regional vaccination data from the simulated flu season.
 
@@ -20,6 +21,7 @@ library(readr)
 library(dplyr)
 library(tidyr)
 library(stringr)
+library(tidyverse)
 ca_vax_rate <- read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/ca_vax_rates_quarter.csv")
 ca_vax_rate
 
@@ -44,8 +46,9 @@ sim_flu_la
 ```
 
 #Document the import process
-The process was as foolows;
- -PHW251 repository was opened from github
+The process was as follows;
+
+ -The PHW251 project data repository was opened from github
  -The scenario(scenario 1 dataset) was opened
  -Each of the dataset to be imported in the scenario was opened to get the url
  link
@@ -59,27 +62,89 @@ The process was as foolows;
  
  ##IDENTIFY DATA TYPES FOR 5+ DATA ELEMENTS/COLUMNS/VARIABLES
  
+ 
+```{r snake_case}
+#Clean up column names (recommend using snake case) using the janitor::clean_name () function to transform column names to snake_case
+
+ca_vax_rate1 <- ca_vax_rate %>% janitor::clean_names()
+ca_vax_rate1
+sim_flu_ca1 <- sim_flu_ca %>% janitor::clean_names()
+sim_flu_ca1
+sim_flu_la1 <- sim_flu_la %>% janitor::clean_names()
+sim_flu_la1
+```
+ 
+ 
 ```{r}
-str(ca_vax_rate) #ca_vax_rate dataset
+#Identify data types for 5+ data elements/columns/variables.  We use the structure function (str()) to get the data dimension and data elements, or apply function and class function to get the dataset elements as demonstrated below
+
+str(ca_vax_rate1) #ca_vax_rate dataset code to determine the dataset elements/variables/columns
 ```
  
 ```{r}
-str(sim_flu_la)
+str(sim_flu_la1)
+# dt_dx, age_category, sex and race_eth are all character variables,dt_report is a logical variable,dx_ new and the rest are all number variables.
 ```
 ```{r}
-str(sim_flu_la)
+str(sim_flu_la1)
 ```
  
  UTILIZE FUNCTIONS OR RESOURCES IN RSTUDIO TO DETERMINE THE TYPES OF EACH OF EACH DATA ELEMENT
  
 ```{r}
-sapply(ca_vax_rate, class) #sapply() is used along with class() to determine the types of all variables in a dataset
+sapply(ca_vax_rate1, class) #sapply() is used along with class() to determine the types of all variables in a dataset as seen below;character,numeric,date,logical
 ```
 ```{r}
-sapply(sim_flu_la, class)
+sapply(sim_flu_la1, class)# function to determine the types of each data element  
 ```
 ```{r}
-sapply(sim_flu_la, class)
+sapply(sim_flu_la1, class)
 ```
- 
+
+#will you need to convert any columns to numeric or another type?
+
+Yes we might convert sex to factor (numeric;1,2) using as.factor depending on the type of analysis we may be asked to run otherwise we could still leave sex as character variable (female,male).
+
+#Provide a basic description of the 5+ data elements
+#Numeric: mean, median, range`{r}
+```{r}
+#descriptive statistics using summarise function for measures of central tendency;mean,median sd,range for numeric 
+
+df2 <- ca_vax_rate1 %>%
+  summarise(mean_tot_partial_vac = mean(total_partial_vaccinated, na.rm=TRUE),
+mean_cumul_fully_vac = mean(cumulative_fully_vaccinated, na.rm=TRUE),
+median_cumul_up_to_date_vax=median (cumulative_up_to_date_vax, na.rm=TRUE),
+min_cumul_at_least_0_ne_dose= min(cumulative_at_least_o_ne_dose, na.rm=TRUE),
+max_cumul_at_least_0_ne_dose= max(cumulative_up_to_date_vax, na.rm=TRUE),
+sd_cumul_unvac=sd(cumulative_unvaccinated, na.rm=TRUE))
+df2
+
+median(ca_vax_rate1$total_partial_vaccinated, na.rm=TRUE)
+range(ca_vax_rate1$cumulative_unvaccinated, na.rm=TRUE)
+mean(ca_vax_rate1$estimated_population, na.rm=TRUE)
+
+```
+
+#Character:  unique values/categories
+Or any other descriptives that will be useful to the analysis
+```{r}
+
+table (ca_vax_rate1$demographic_category) #frequency table of a specific variable(demographic_category) in a data set 
+
+unique(ca_vax_rate1$demographic_category)# unique function shows the diffrent levels in a character variable
+
+sim_flu_ca1 %>% distinct(sex) # for disticnt variables found in the column sex
+```
+
+#Describe cleaning that each data source may need
+
+-In the dataset ca_vax_rate, the columns; demographic_category and demographic levels  needs cleaning and re-categorization.
+
+- When using the datasets ( all three data sets), they have to be cleaned by removing "NA" (missing variables) using logic functions.
+
+- Rate of flu vaccination column has to be calculated and inserted in the data set for flu vaccination using the mutate function.
+- The two data sets ca_vax_rate(for covid vaccinnation rate) and the dataset, sim_flu_ca needs to be joint for correlation analysis to be done.
+- Sex variable needs to be converted from character variable (male and female) to as.factor (1,2) for easy manipulation in data set
+
+
  
