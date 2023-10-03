@@ -63,9 +63,47 @@ The process was as follows;
  dataset <- read_csv (datasetpath)
  
  
- ##IDENTIFY DATA TYPES FOR 5+ DATA ELEMENTS/COLUMNS/VARIABLES
+ #CLEAN UP COLUMNS NAMES using snake_case
+```{r}
+# Get the current column names for ca_vax_rate dataset
+col_names <- colnames(ca_vax_rate)
+
+# Clean up column names using snake case
+clean_col_names <- gsub("[^[:alnum:]]", "_", tolower(col_names))
+
+# Assign the cleaned column names back to the dataset
+colnames(ca_vax_rate) <- clean_col_names
+print(ca_vax_rate)
+# Now the column names are in snake case
+```
+```{r}
+# Get the current column names for sim_flu_ca dataset
+col_names <- colnames(sim_flu_ca)
+
+# Clean up column names using snake case
+clean_col_names <- gsub("[^[:alnum:]]", "_", tolower(col_names))
+
+# Assign the cleaned column names back to the dataset
+colnames(sim_flu_ca) <- clean_col_names
+print(sim_flu_ca)
+# Now the column names are in snake case
+```
+```{r}
+# Get the current column names for sim_flu_la dataset
+col_names <- colnames(sim_flu_la)
+
+# Clean up column names using snake case
+clean_col_names <- gsub("[^[:alnum:]]", "_", tolower(col_names))
+
+# Assign the cleaned column names back to the dataset
+colnames(sim_flu_la) <- clean_col_names
+print(sim_flu_la)
+# Now the column names are in snake case
+```
  
+
  
+ another way to clean column names into snake_case using janitor::clean_name ()function
 ```{r snake_case}
 #Clean up column names (recommend using snake case) using the janitor::clean_name () function to transform column names to snake_case
 
@@ -76,9 +114,12 @@ sim_flu_ca1
 sim_flu_la1 <- sim_flu_la %>% janitor::clean_names()
 sim_flu_la1
 ```
+
  
+##IDENTIFY DATA TYPES FOR 5+ DATA ELEMENTS/COLUMNS/VARIABLES 
  
 ```{r}
+
 #Identify data types for 5+ data elements/columns/variables.  We use the structure function (str()) to get the data dimension and data elements, or apply function and class function to get the dataset elements as demonstrated below
 
 str(ca_vax_rate1) #ca_vax_rate dataset code to determine the dataset elements/variables/columns
@@ -90,9 +131,17 @@ str(sim_flu_la1)
 ```
 ```{r}
 str(sim_flu_la1)
+str(ca_vax_rate) #Data types for the ca_vax_rate dataset
 ```
  
- UTILIZE FUNCTIONS OR RESOURCES IN RSTUDIO TO DETERMINE THE TYPES OF EACH OF EACH DATA ELEMENT
+```{r}
+str(sim_flu_la) #Data types for the sim_flu_la dataset
+```
+```{r}
+str(sim_flu_la) #data types for the sim_flu_la dataset
+```
+ 
+ #UTILIZE FUNCTIONS OR RESOURCES IN RSTUDIO TO DETERMINE THE TYPES OF EACH OF EACH DATA ELEMENT
  
 ```{r}
 sapply(ca_vax_rate1, class) #sapply() is used along with class() to determine the types of all variables in a dataset as seen below;character,numeric,date,logical
@@ -104,21 +153,49 @@ sapply(sim_flu_la1, class)# function to determine the types of each data element
 sapply(sim_flu_la1, class)
 ```
 
-#will you need to convert any columns to numeric or another type?
-
-Yes we might convert sex to factor (numeric;1,2) using as.factor depending on the type of analysis we may be asked to run otherwise we could still leave sex as character variable (female,male).
+##will you need to convert any columns to numeric or another type?
+ 
+Yes we might convert sex to factor (numeric;1,2) using as.factor. This will the variable "sex" to actually in levels/category and here will be able to clearly how the out varies in one sex category as compared to the others.
+asked to run otherwise we could still leave sex as character variable (female,male).
 
 #Provide a basic description of the 5+ data elements
-#Numeric: mean, median, range`{r}
+
+# Numeric data elements for the ca_vax_rate dataset
+numeric_cols <- sapply(ca_vax_rate, is.numeric)  # Identify numeric columns
+numeric_summary <- data.frame(
+  Mean = sapply(ca_vax_rate[, numeric_cols], mean),
+  Median = sapply(ca_vax_rate[, numeric_cols], median),
+  Range = sapply(ca_vax_rate[, numeric_cols], function(x) max(x) - min(x))
+)
+
+# Character data elements
+character_cols <- sapply(ca_vax_rate, is.character)  # Identify character columns
+character_summary <- data.frame(
+  Unique_Values = sapply(ca_vax_rate[, character_cols], function(x) length(unique(x)))
+)
+# Print the summaries
+print(numeric_summary)
+print(character_summary)
+
+
+#In this code, `sapply()` is used to apply the respective functions (`mean()`, `median()`, `function(x) max(x) - min(x)`, and `function(x) length(unique(x))`) to each numeric and character column in the dataset. The results are stored in separate data frames (`numeric_summary` and `character_summary`), and then printed
+
+
+
+
+
+
+
+# calculating some descriptive statistics;Numeric: mean, median, range`{r}, sd
 ```{r}
 #descriptive statistics using summarise function for measures of central tendency;mean,median sd,range for numeric 
 
 df2 <- ca_vax_rate1 %>%
-  summarise(mean_tot_partial_vac = mean(total_partial_vaccinated, na.rm=TRUE),
+summarise(mean_tot_partial_vac = mean(total_partial_vaccinated, na.rm=TRUE),
 mean_cumul_fully_vac = mean(cumulative_fully_vaccinated, na.rm=TRUE),
 median_cumul_up_to_date_vax=median (cumulative_up_to_date_vax, na.rm=TRUE),
-min_cumul_at_least_0_ne_dose= min(cumulative_at_least_o_ne_dose, na.rm=TRUE),
-max_cumul_at_least_0_ne_dose= max(cumulative_up_to_date_vax, na.rm=TRUE),
+min_cumul_at_least_one_dose= min(cumulative_at_least_one_dose, na.rm=TRUE),
+max_cumul_at_least_one_dose= max(cumulative_at_least_one_dose, na.rm=TRUE),
 sd_cumul_unvac=sd(cumulative_unvaccinated, na.rm=TRUE))
 df2
 
@@ -128,16 +205,21 @@ mean(ca_vax_rate1$estimated_population, na.rm=TRUE)
 
 ```
 
-#Character:  unique values/categories
-Or any other descriptives that will be useful to the analysis
-```{r freq}
+
+```{r}
+#Character:  unique values/categories Or any other descriptives that will be useful to the analysis
 
 table (ca_vax_rate1$demographic_category) #frequency table of a specific variable(demographic_category) in a data set 
 
 unique(ca_vax_rate1$demographic_category)# unique function shows the diffrent levels in a character variable
 
 sim_flu_ca1 %>% distinct(sex) # for disticnt variables found in the column sex
+
 ```
+
+
+
+
 
 #Describe cleaning that each data source may need
 
@@ -150,4 +232,41 @@ sim_flu_ca1 %>% distinct(sex) # for disticnt variables found in the column sex
 - Sex variable needs to be converted from character variable (male and female) to as.factor (1,2) for easy manipulation in data set
 
 
- 
+
+
+
+
+
+#Describe cleaning that each data source may need
+-In the dataset ca_vax_rate, the columns; demographic_category and demographic levels needs cleaning and
+re-categorization.
+• When using the datasets ( all three data sets), they have to be cleaned by removing “NA” (missing
+variables) using logic functions.
+• Rate of flu vaccination column has to be calculated and inserted in the data set for flu vaccination
+using the mutate function.
+• The two data sets ca_vax_rate(for covid vaccinnation rate) and the dataset, sim_flu_ca needs to be
+joint for correlation analysis to be done.
+• Sex variable needs to be converted from character variable (male and female) to as.factor (1,2) for easy manipulation in data set
+
+When importing a dataset into R, there are several common data cleaning tasks that may be needed. Some anticipated data cleaning steps include:
+
+1. Handling missing values: Identify missing values in the dataset and decide on an appropriate strategy for handling them, such as imputation or deletion.
+
+2. Data type conversion: Check if any data elements need to be converted to a different type, such as converting character variables to factors or numeric variables to dates.
+
+3. Removing duplicates: Identify and remove any duplicate records in the dataset to ensure data integrity.
+
+4. Standardizing data: Check for inconsistencies or variations in data entry, such as inconsistent capitalization or spelling errors, and standardize them for consistency.
+
+5. Handling outliers: Identify and handle any outliers in the dataset, either by removing them or by applying appropriate statistical techniques.
+
+6. Re-categorizing variables: Evaluate the existing categorization of variables and determine if any re-categorization is needed for better analysis or interpretation.
+
+7. Encoding and decoding variables: If the dataset contains categorical variables with codes or abbreviations, consider encoding them into meaningful labels for better understanding.
+
+8. Creating derived variables: Identify any derived variables that may be useful for analysis or future joins, such as creating a state variable from a zip code variable.
+
+9. Addressing data inconsistencies: Check for inconsistencies in data entry, such as inconsistent formats or units, and address them to ensure data consistency.
+
+10. Handling data outliers: Identify any extreme values that may be outliers and decide on an appropriate strategy for handling them, such as removing or transforming them.
+
