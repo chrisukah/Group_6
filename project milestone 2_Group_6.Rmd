@@ -57,17 +57,56 @@ The process was as foolows;
  dataset <- read_csv (datasetpath)
  
  
- ##IDENTIFY DATA TYPES FOR 5+ DATA ELEMENTS/COLUMNS/VARIABLES
+ #CLEAN UP COLUMNS NAMES 
+```{r}
+# Get the current column names for ca_vax_rate dataset
+col_names <- colnames(ca_vax_rate)
+
+# Clean up column names using snake case
+clean_col_names <- gsub("[^[:alnum:]]", "_", tolower(col_names))
+
+# Assign the cleaned column names back to the dataset
+colnames(ca_vax_rate) <- clean_col_names
+print(ca_vax_rate)
+# Now the column names are in snake case
+```
+```{r}
+# Get the current column names for sim_flu_ca dataset
+col_names <- colnames(sim_flu_ca)
+
+# Clean up column names using snake case
+clean_col_names <- gsub("[^[:alnum:]]", "_", tolower(col_names))
+
+# Assign the cleaned column names back to the dataset
+colnames(sim_flu_ca) <- clean_col_names
+print(sim_flu_ca)
+# Now the column names are in snake case
+```
+```{r}
+# Get the current column names for sim_flu_la dataset
+col_names <- colnames(sim_flu_la)
+
+# Clean up column names using snake case
+clean_col_names <- gsub("[^[:alnum:]]", "_", tolower(col_names))
+
+# Assign the cleaned column names back to the dataset
+colnames(sim_flu_la) <- clean_col_names
+print(sim_flu_la)
+# Now the column names are in snake case
+```
+ 
+ 
+##IDENTIFY DATA TYPES FOR 5+ DATA ELEMENTS/COLUMNS/VARIABLES
  
 ```{r}
-str(ca_vax_rate) #ca_vax_rate dataset
+str(ca_vax_rate) #Data types for the ca_vax_rate dataset
 ```
  
 ```{r}
-str(sim_flu_la)
+str(sim_flu_la) #Data types for the sim_flu_la dataset
 ```
 ```{r}
-str(sim_flu_la)
+str(sim_flu_la) #data types for the sim_flu_la dataset
 ```
  
  UTILIZE FUNCTIONS OR RESOURCES IN RSTUDIO TO DETERMINE THE TYPES OF EACH OF EACH DATA ELEMENT
@@ -82,4 +121,48 @@ sapply(sim_flu_la, class)
 sapply(sim_flu_la, class)
 ```
  
+##will you need to convert any columns to numeric or another type?
  
+Yes we might convert sex to factor (numeric;1,2) using as.factor. This will the variable "sex" to actually in levels/category and here will be able to clearly how the out varies in one sex category as compared to the others.
+asked to run otherwise we could still leave sex as character variable (female,male).
+
+
+#PROVIDE A BASIC DESCRIPTION OF THE 5+ DATA ELEMENT
+
+```{r}
+# Numeric data elements for the ca_vax_rate dataset
+numeric_cols <- sapply(ca_vax_rate, is.numeric)  # Identify numeric columns
+numeric_summary <- data.frame(
+  Mean = sapply(ca_vax_rate[, numeric_cols], mean),
+  Median = sapply(ca_vax_rate[, numeric_cols], median),
+  Range = sapply(ca_vax_rate[, numeric_cols], function(x) max(x) - min(x))
+)
+
+# Character data elements
+character_cols <- sapply(ca_vax_rate, is.character)  # Identify character columns
+character_summary <- data.frame(
+  Unique_Values = sapply(ca_vax_rate[, character_cols], function(x) length(unique(x)))
+)
+
+# Print the summaries
+print(numeric_summary)
+print(character_summary)
+
+
+#In this code, `sapply()` is used to apply the respective functions (`mean()`, `median()`, `function(x) max(x) - min(x)`, and `function(x) length(unique(x))`) to each numeric and character column in the dataset. The results are stored in separate data frames (`numeric_summary` and `character_summary`), and then printed.
+```
+
+#Please kindly insert the solution for description of 5+ data elements here
+
+
+#Describe cleaning that each data source may need
+-In the dataset ca_vax_rate, the columns; demographic_category and demographic levels needs cleaning and
+re-categorization.
+• When using the datasets ( all three data sets), they have to be cleaned by removing “NA” (missing
+variables) using logic functions.
+• Rate of flu vaccination column has to be calculated and inserted in the data set for flu vaccination
+using the mutate function.
+• The two data sets ca_vax_rate(for covid vaccinnation rate) and the dataset, sim_flu_ca needs to be
+joint for correlation analysis to be done.
+• Sex variable needs to be converted from character variable (male and female) to as.factor (1,2) for easy
+manipulation in data set
