@@ -1,0 +1,145 @@
+---
+title: "project Milestone 3"
+author: "Ngu Claudia Ngeha, Ukah Chrisntus Eweh"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r }
+library(readr)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(tidyverse)
+library(lubridate)
+#Importing  morbidity data sets for the entire state of California
+df_ca_vax_rates <- read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/ca_vax_rates_quarter.csv")
+df_sim_flu_ca <-read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/sim_flu_CA.csv")
+df_sim_flu_lacounty <-read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/sim_flu_LACounty.csv")
+
+```
+
+#Recode Recode column names, values, or formats that are in discordant #(dates, etc)
+
+```{r }
+df1 <- df_sim_flu_ca %>% rename(population=pop, age_category=age_cat) 
+
+df2 <- df_sim_flu_lacounty %>% rename_all(tolower) %>%
+  rename(date_diagnosis=dt_dx)
+
+df3 <- df_ca_vax_rates %>% janitor::clean_names() %>% 
+  rename(population=estimated_population)
+
+# for data cleaning first use str to have insight of data sets on variable #type
+str(df1)
+str(df2)
+str(df3)
+# check for NA
+df1_missing <- is.na(df1)
+df2_missing <-is.na(df2)
+df3_missing <-is.na (df3)
+head(df1_missing)
+# number of NA
+sum(is.na(df1))
+sum(is.na(df2))
+sum(is.na(df3))
+```
+```{r}
+# Using dplyr
+# Remove duplicate rows (all columns)
+library(dplyr)
+df1 <- df1 %>% distinct()
+df2 <- df2 %>% distinct()
+df3 <- df3 %>% distinct()
+```
+
+
+```{r}
+#unique() to identify misspellings in data sets to harmonise spellings
+unique(df1$sex)
+unique(df2$race_eth)
+unique(df2$sex)
+unique(df3$suppress_data)
+```
+
+
+```{r}
+#Subset rows or columns, as needed
+df1_new <- df1 %>% select(-time_int, -report_date) %>%
+  filter (new_infections != 0, new_recovered != 0) 
+df2_new <- df2 %>% select (-dt_report) %>% filter(infected_current != 0)
+
+```
+#Create new variables needed for analysis (minimum 2)
+
+```{r}
+df1 <- df1_new %>%
+  mutate(prevalence=cumulative_infected/population*100,
+         incidence=new_infections/population*100)
+head(df1)
+```
+
+#recode age_category or sex in df2_new we use unique function
+```{r}
+unique(df2_new$age_category)#to identify the diferent age ranges
+unique(df2_new$sex)
+                               
+```
+
+
+#mising values
+
+```{r}
+# to identify where missing values are
+df3_new_missing <-df3%>% filter(!complete.cases(.))
+#removing NA for continous variables by droping NA
+df3_new_missing <-df3%>%  
+  drop_na(population,cumulative_unvaccinated)
+sum(is.na(df1))
+sum(is.na(df2_new))
+sum(is.na(df3_new_missing))#to check if any more missing in df
+
+```
+##Recode Male =1 and Female = 2
+
+```{r}
+df2_new$sex <- ifelse(df2_new$sex == "MALE", 1, 2)
+```
+
+#ummary statistics ussing the describe function from the psych package
+```{r}
+install.packages("psych")
+library(psych)
+describe(df1)
+describe(df2_new)
+describe(df3_new_missing)
+
+```
+```{r}
+#Summary statistics for individual columns in the dataset
+new_infection <- summary(df1$new_infections)
+new_infection
+new_recover <- summary(df1$new_recovered)
+new_recover
+count_susceptible <- summary(df1$count_susceptible)
+count_susceptible
+population <- summary(df1$population)
+population
+prevalence <- summary(df1$prevalence)
+prevalence
+incidence <- summary(df1$incidence)
+incidence
+```
+
+
+
