@@ -636,6 +636,55 @@ on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http:
 generated that includes both content as well as the output of any
 embedded R code chunks within the document. You can embed an R code
 chunk like this:</p>
+<pre class="r"><code># Rename the columns to ease merging of the two datasets from CA and LA
+df2_1 &lt;- df2 %&gt;%
+  rename(
+    dt_diagnosis = date_diagnosis,
+    new_infections = dx_new,
+    new_recovered = recovered_new,
+    count_susceptible = susceptible,
+    current_infected = infected_current,
+    cumulative_infected = infected_cumulative,
+    cumulative_recovered = recovered_cumulative,
+    new_severe = severe_new,
+    cumulative_severe = severe_cumulative
+  )</code></pre>
+<pre class="r"><code>library(lubridate)
+
+# Load the df2 dataset
+
+# Convert the dt_diagnosis column to the desired format
+df2_1$dt_diagnosis &lt;- parse_date_time(df2_1$dt_diagnosis, orders = &quot;dmy&quot;)  # Assuming the date is in &quot;03OCT2022&quot; format
+df2$dt_diagnosis &lt;- format(df2_1$dt_diagnosis, &quot;%Y-%m-%d&quot;)
+
+# Verify the updated date format
+head(df2_1)  # Display the first few rows to verify the date format</code></pre>
+<pre><code>## # A tibble: 6 × 13
+##   dt_diagnosis        age_category sex    race_eth      dt_report new_infections
+##   &lt;dttm&gt;              &lt;chr&gt;        &lt;chr&gt;  &lt;chr&gt;         &lt;lgl&gt;              &lt;dbl&gt;
+## 1 2022-10-03 00:00:00 0-17         FEMALE White, Non-H… NA                   513
+## 2 2022-10-09 00:00:00 0-17         FEMALE White, Non-H… NA                   343
+## 3 2022-10-19 00:00:00 0-17         FEMALE White, Non-H… NA                   340
+## 4 2022-10-26 00:00:00 0-17         FEMALE White, Non-H… NA                   422
+## 5 2022-11-01 00:00:00 0-17         FEMALE White, Non-H… NA                   321
+## 6 2022-11-05 00:00:00 0-17         FEMALE White, Non-H… NA                   366
+## # ℹ 7 more variables: new_recovered &lt;dbl&gt;, current_infected &lt;dbl&gt;,
+## #   cumulative_infected &lt;dbl&gt;, cumulative_recovered &lt;dbl&gt;,
+## #   count_susceptible &lt;dbl&gt;, new_severe &lt;dbl&gt;, cumulative_severe &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#Merge the two datasets from CA and LA to one dataset called merged_df
+merged_df &lt;- merge(df1, df2_1, by = c(&quot;dt_diagnosis&quot;, &quot;new_infections&quot;, &quot;new_recovered&quot;, &quot;count_susceptible&quot;, &quot;current_infected&quot;, &quot;cumulative_infected&quot;, &quot;cumulative_recovered&quot;, &quot;new_severe&quot;, &quot;cumulative_severe&quot;))
+head(merged_df)</code></pre>
+<pre><code>##  [1] dt_diagnosis           new_infections         new_recovered         
+##  [4] count_susceptible      current_infected       cumulative_infected   
+##  [7] cumulative_recovered   new_severe             cumulative_severe     
+## [10] county                 new_unrecovered        cumulative_unrecovered
+## [13] age_category.x         sex.x                  race_ethnicity        
+## [16] population             prevalence             incidence             
+## [19] age_category.y         sex.y                  race_eth              
+## [22] dt_report             
+## &lt;0 rows&gt; (or 0-length row.names)</code></pre>
+<pre class="r"><code>dim(merged_df)</code></pre>
+<pre><code>## [1]  0 22</code></pre>
 <pre class="r"><code>summary(cars)</code></pre>
 <pre><code>##      speed           dist       
 ##  Min.   : 4.0   Min.   :  2.00  

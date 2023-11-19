@@ -236,6 +236,18 @@ sim_flu_ca1 %>% distinct(sex) # for disticnt variables found in the column sex
 
 
 
+```{r}
+#descriptive statistics using summarise function for measures of central tendency;mean,median sd,range fdf2 <- ca_vax_rate1 %>%
+
+summarise(mean_tot_partial_vac = mean(total_partial_vaccinated, na.rm=TRUE),
+mean_cumul_fully_vac = mean(cumulative_fully_vaccinated, na.rm=TRUE),
+median_cumul_up_to_date_vax=median (cumulative_up_to_date_vax, na.rm=TRUE),
+min_cumul_at_least_0_ne_dose= min(cumulative_at_least_o_ne_dose, na.rm=TRUE),
+max_cumul_at_least_0_ne_dose= max(cumulative_up_to_date_vax, na.rm=TRUE),
+sd_cumul_unvac=sd(cumulative_unvaccinated, na.rm=TRUE))
+df2
+
+```
 
 #Describe cleaning that each data source may need
 -In the dataset ca_vax_rate, the columns; demographic_category and demographic levels needs cleaning and

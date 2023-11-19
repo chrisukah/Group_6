@@ -1,0 +1,156 @@
+---
+title: "Project Milestone 3"
+author: "Ukah Chrisantus Eweh, Ngu Claudia Ngea"
+date: "2023-11-08"
+output: html_document
+---
+
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(readr)
+library(stringr)
+library(devtools)
+```
+
+
+```{r}
+library(dplyr)
+df_ca_vax_rates <- read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/ca_vax_rates_quarter.csv")
+
+df_sim_flu_ca <- read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/sim_flu_CA.csv")
+
+
+df_sim_flu_lacounty <- read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/sim_flu_LACounty.csv")
+```
+```{r}
+#Rename columns
+df1 <- df_sim_flu_ca %>% rename(population=pop, age_category=age_cat) 
+
+df2 <- df_sim_flu_lacounty %>% rename_all(tolower) %>%
+  rename(date_diagnosis=dt_dx)
+
+df3 <- df_ca_vax_rates %>% janitor::clean_names() %>% 
+  rename(population=estimated_population)
+#  for data cleaning first use str to have insight of data sets
+str(df1)
+str(df2)
+str(df3)
+# check for NA
+df1_missing <- is.na(df1)
+df2_missing <-is.na(df2)
+df3_missing <-is.na (df3)
+head(df1_missing)
+# number of NA
+sum(is.na(df1))
+sum(is.na(df2))
+sum(is.na(df3))
+```
+
+
+```{r remove duplicate}
+# Using dplyr
+# Remove duplicate rows (all columns)
+library(dplyr)
+df1 <- df1 %>% distinct()
+df2 <- df2 %>% distinct()
+df3 <- df3 %>% distinct()
+```
+
+```{r harmonise spellings}
+#unique() to identify misspellings in data sets to harmonise spellings
+unique(df1$sex)
+unique(df2$race_eth)
+unique(df2$sex)
+unique(df3$suppress_data)
+```
+```{r}
+df1_new <- df1 %>% select(-time_int, -report_date) %>%
+  filter (new_infections != 0, new_recovered !=0)
+```
+
+```{r harmonise date_diagnosis}
+df2_new <- df2 %>% select(-dt_report) %>%
+  filter (infected_current != 0)
+```
+
+```{r}
+df1 <- df1_new %>% mutate(prevalence=cumulative_infected/population*100, incidence=new_infections/population*100) 
+head(df1)
+```
+
+```{r}
+#Recode Male =1 and Female = 2
+df2_new$sex <- ifelse(df2_new$sex == "MALE", 1, 2)
+```
+
+
+```{r}
+#Summary statistics
+new_infection <- summary(df1_new$new_infections)
+new_infection
+new_recover <- summary(df1_new$new_recovered)
+new_recover
+count_susceptible <- summary(df1_new$count_susceptible)
+count_susceptible
+population <- summary(df1_new$population)
+population
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+# Rename the columns to ease merging of the two datasets from CA and LA
+df2_1 <- df2 %>%
+  rename(
+    dt_diagnosis = date_diagnosis,
+    new_infections = dx_new,
+    new_recovered = recovered_new,
+    count_susceptible = susceptible,
+    current_infected = infected_current,
+    cumulative_infected = infected_cumulative,
+    cumulative_recovered = recovered_cumulative,
+    new_severe = severe_new,
+    cumulative_severe = severe_cumulative
+  )
+```
+
+```{r}
+library(lubridate)
+
+# Load the df2 dataset
+
+# Convert the dt_diagnosis column to the desired format
+df2_1$dt_diagnosis <- parse_date_time(df2_1$dt_diagnosis, orders = "dmy")  # Assuming the date is in "03OCT2022" format
+df2$dt_diagnosis <- format(df2_1$dt_diagnosis, "%Y-%m-%d")
+
+# Verify the updated date format
+head(df2_1)  # Display the first few rows to verify the date format
+
+```
+```{r}
+#Merge the two datasets from CA and LA to one dataset called merged_df
+merged_df <- merge(df1, df2_1, by = c("dt_diagnosis", "new_infections", "new_recovered", "count_susceptible", "current_infected", "cumulative_infected", "cumulative_recovered", "new_severe", "cumulative_severe"))
+head(merged_df)
+dim(merged_df)
+```
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
