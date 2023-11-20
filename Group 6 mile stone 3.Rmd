@@ -166,10 +166,40 @@ df2_new$dt_diagnosis <- format(df2_1$dt_diagnosis, "%Y-%m-%d")
 head(df2_1) # Display the first few rows to verify the date format
 ```
 ```{r}
-#join the two datasets from CA and LA to one dataset called join_df
+#hormonising code of df1 to match df2_1
 df1$sex <- ifelse(df1$sex == "MALE", 1, 2)
+#q5, datasets from CA and LA are bound together to one dataset called join_df using left_join function
 joint_df <- left_join(df1, df2_1, by = join_by(new_infections, new_recovered, count_susceptible, current_infected, cumulative_infected, cumulative_recovered, new_severe, cumulative_severe, age_category, sex, dt_diagnosis))
 
 ```
 
+```{r}
+#data aggregation to have descriptive statistics by county
+names(joint_df$race_eth)
+summary_joint_df <- joint_df %>% select(-race_eth) %>% drop_na(county) %>%
+  group_by(county) %>% 
+  summarise(
+    mean_new_infections= mean(new_infection, na.rm = T),
+    mean_new_recovered= mean(new_recovered, na.rm = T),
+    median_count_susceptible= median(count_susceptible, na.rm = T),
+    min_current_infected= min(current_infected, na.rm = T),
+    max_cumulative_infected= max(cumulative_infected, na.rm = T),
+    max_cumulative_recovered= max(cumulative_recovered, na.rm= T),
+    sd_prevalence= sd(prevalence, na.rm= T)
+    )
+df4 <- summary_joint_df
+df5 <- describe(summary_joint_df)
+```
+
+```{r}
+#q6, data dictionary for cleaned joint d
+```
+
+
+```{r}
+library(knitr)
+library(kableExtra)
+#q8,html that is professionally prepared for presentation
+kable(head(df4, 10), format = "html", col.names = gsub("_"," ", names(df4)), caption = "Portion of Summary Statistic of California sim flu") 
+```
 
