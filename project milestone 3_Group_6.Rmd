@@ -2,7 +2,9 @@
 title: "Project Milestone 3"
 author: "Ukah Chrisantus Eweh, Ngu Claudia Ngea"
 date: "2023-11-08"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 
