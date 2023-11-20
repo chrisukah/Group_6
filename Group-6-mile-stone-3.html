@@ -11,7 +11,7 @@
 
 <meta name="author" content="Ngu Claudia Ngeha, Ukah Chrisntus Eweh" />
 
-<meta name="date" content="2023-11-08" />
+<meta name="date" content="2023-11-20" />
 
 <title>project Milestone 3</title>
 
@@ -352,7 +352,7 @@ display: none;
 
 <h1 class="title toc-ignore">project Milestone 3</h1>
 <h4 class="author">Ngu Claudia Ngeha, Ukah Chrisntus Eweh</h4>
-<h4 class="date">2023-11-08</h4>
+<h4 class="date">2023-11-20</h4>
 
 </div>
 
@@ -640,7 +640,7 @@ sum(is.na(df1))</code></pre>
 <pre><code>## [1] 0</code></pre>
 <p>##Recode Male =1 and Female = 2</p>
 <pre class="r"><code>df2_new$sex &lt;- ifelse(df2_new$sex == &quot;MALE&quot;, 1, 2)</code></pre>
-<p>#ummary statistics ussing the describe function from the psych
+<p>#summary statistics ussing the describe function from the psych
 package</p>
 <pre class="r"><code>install.packages(&quot;psych&quot;)</code></pre>
 <pre><code>## Installing package into &#39;/usr/local/lib/R/site-library&#39;
@@ -796,6 +796,41 @@ prevalence</code></pre>
 incidence</code></pre>
 <pre><code>##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
 ##  0.00788  0.43814  1.61766  1.75632  2.65652 50.00000</code></pre>
+<pre class="r"><code># Rename the columns to ease merging of the two datasets from CA and LA
+df2_1 &lt;- df2_new %&gt;%
+  rename(
+dt_diagnosis = date_diagnosis,
+new_infections = dx_new,
+new_recovered = recovered_new,
+count_susceptible = susceptible,
+current_infected = infected_current,
+cumulative_infected = infected_cumulative,
+cumulative_recovered = recovered_cumulative,
+new_severe = severe_new,
+cumulative_severe = severe_cumulative
+)</code></pre>
+<pre class="r"><code>library(lubridate)
+# Load the df2 dataset
+# Convert the dt_diagnosis column to the desired format
+df2_1$dt_diagnosis &lt;- parse_date_time(df2_1$dt_diagnosis, orders = &quot;dmy&quot;)#given that the date is in 03oct2022 format,
+df2_new$dt_diagnosis &lt;- format(df2_1$dt_diagnosis, &quot;%Y-%m-%d&quot;)
+# Verify the updated date format
+head(df2_1) # Display the first few rows to verify the date format</code></pre>
+<pre><code>## # A tibble: 6 × 12
+##   dt_diagnosis        age_category   sex race_eth   new_infections new_recovered
+##   &lt;dttm&gt;              &lt;chr&gt;        &lt;dbl&gt; &lt;chr&gt;               &lt;dbl&gt;         &lt;dbl&gt;
+## 1 2022-10-03 00:00:00 0-17             2 White, No…            513             0
+## 2 2022-10-09 00:00:00 0-17             2 White, No…            343           508
+## 3 2022-10-19 00:00:00 0-17             2 White, No…            340           341
+## 4 2022-10-26 00:00:00 0-17             2 White, No…            422           341
+## 5 2022-11-01 00:00:00 0-17             2 White, No…            321           421
+## 6 2022-11-05 00:00:00 0-17             2 White, No…            366           316
+## # ℹ 6 more variables: current_infected &lt;dbl&gt;, cumulative_infected &lt;dbl&gt;,
+## #   cumulative_recovered &lt;dbl&gt;, count_susceptible &lt;dbl&gt;, new_severe &lt;dbl&gt;,
+## #   cumulative_severe &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#join the two datasets from CA and LA to one dataset called join_df
+df1$sex &lt;- ifelse(df1$sex == &quot;MALE&quot;, 1, 2)
+joint_df &lt;- left_join(df1, df2_1, by = join_by(new_infections, new_recovered, count_susceptible, current_infected, cumulative_infected, cumulative_recovered, new_severe, cumulative_severe, age_category, sex, dt_diagnosis))</code></pre>
 </div>
 
 

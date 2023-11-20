@@ -116,7 +116,7 @@ sum(is.na(df3_new_missing))#to check if any more missing in df
 df2_new$sex <- ifelse(df2_new$sex == "MALE", 1, 2)
 ```
 
-#ummary statistics ussing the describe function from the psych package
+#summary statistics ussing the describe function from the psych package
 ```{r}
 install.packages("psych")
 library(psych)
@@ -140,6 +140,36 @@ prevalence
 incidence <- summary(df1$incidence)
 incidence
 ```
+```{r}
+# Rename the columns to ease merging of the two datasets from CA and LA
+df2_1 <- df2_new %>%
+  rename(
+dt_diagnosis = date_diagnosis,
+new_infections = dx_new,
+new_recovered = recovered_new,
+count_susceptible = susceptible,
+current_infected = infected_current,
+cumulative_infected = infected_cumulative,
+cumulative_recovered = recovered_cumulative,
+new_severe = severe_new,
+cumulative_severe = severe_cumulative
+)
+```
 
+```{r}
+library(lubridate)
+# Load the df2 dataset
+# Convert the dt_diagnosis column to the desired format
+df2_1$dt_diagnosis <- parse_date_time(df2_1$dt_diagnosis, orders = "dmy")#given that the date is in 03oct2022 format,
+df2_new$dt_diagnosis <- format(df2_1$dt_diagnosis, "%Y-%m-%d")
+# Verify the updated date format
+head(df2_1) # Display the first few rows to verify the date format
+```
+```{r}
+#join the two datasets from CA and LA to one dataset called join_df
+df1$sex <- ifelse(df1$sex == "MALE", 1, 2)
+joint_df <- left_join(df1, df2_1, by = join_by(new_infections, new_recovered, count_susceptible, current_infected, cumulative_infected, cumulative_recovered, new_severe, cumulative_severe, age_category, sex, dt_diagnosis))
+
+```
 
 
