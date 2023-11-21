@@ -2,7 +2,9 @@
 title: "project Milestone 3"
 author: "Ngu Claudia Ngeha, Ukah Chrisntus Eweh"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -95,8 +97,6 @@ unique(df2_new$age_category)#to identify the diferent age ranges
 unique(df2_new$sex)
                                
 ```
-
-
 #mising values
 
 ```{r}
@@ -192,7 +192,30 @@ df5 <- describe(summary_joint_df)
 ```
 
 ```{r}
-#q6, data dictionary for cleaned joint d
+#q6, data dictionary for cleaned joint df, df4
+install.packages("dataMeta")
+library(dataMeta)
+colnames(joint_df)
+joint_df_subset <- joint_df %>% select(-dt_diagnosis,-population,-race_eth)
+str(joint_df_subset)
+var_desc <- c("county","number of new infections","number of cases newly recovered",
+              "number of people susceptible","currently infected",
+              "total infected","sum recovered","new unrecovered",
+              "cumulative unrecovered cases","new severe cases",
+              "sum of severe cases",
+              "age_category","sex","race_ethnicity","prevalence","incidence")
+str(joint_df_subset)
+var_type <- c(1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0)
+#build linker
+linker <- build_linker(joint_df_subset, variable_description = var_desc, variable_type = var_type)
+## data dictionary built
+dict <- build_dict(my.data = joint_df_subset, linker = linker, option_description = NULL, 
+                   prompt_varopts = FALSE)
+```
+```{r}
+#data dictionary looks as follows
+library(kableExtra)
+kable(dict, format = "html", caption = "Data dictionary for CA and LA datasets")
 ```
 
 
