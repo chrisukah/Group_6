@@ -2,9 +2,7 @@
 title: "project Milestone 3"
 author: "Ngu Claudia Ngeha, Ukah Chrisntus Eweh"
 date: "`r Sys.Date()`"
-output:
-  pdf_document: default
-  html_document: default
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -166,7 +164,7 @@ df2_new$dt_diagnosis <- format(df2_1$dt_diagnosis, "%Y-%m-%d")
 head(df2_1) # Display the first few rows to verify the date format
 ```
 ```{r}
-# hormonising code of df1 to match df2_1
+#hormonising code of df1 to match df2_1
 df1$sex <- ifelse(df1$sex == "MALE", 1, 2)
 #q5, datasets from CA and LA are bound together to one dataset called join_df using left_join function
 joint_df <- left_join(df1, df2_1, by = join_by(new_infections, new_recovered, count_susceptible, current_infected, cumulative_infected, cumulative_recovered, new_severe, cumulative_severe, age_category, sex, dt_diagnosis))
@@ -195,22 +193,29 @@ df5 <- describe(summary_joint_df)
 #q6, data dictionary for cleaned joint df, df4
 install.packages("dataMeta")
 library(dataMeta)
-colnames(summary_joint_df)
-str(summary_joint_df)
-var_desc <- c("county","average new infections","average of new recovered cases","median of number of susceptible persons","minimum number of persons currently infected","maximum cumulated total of infected cases","maximum total cases recovered","standard deviation of prevalence")
-var_type <- c(1,0,0,0,0,0,0,0)
+colnames(joint_df)
+joint_df_subset <- joint_df %>% select(-dt_diagnosis,-population,-race_eth)
+str(joint_df_subset)
+var_desc <- c("county","number of new infections","number of cases newly recovered",
+              "number of people susceptible","currently infected",
+              "total infected","sum recovered","new unrecovered",
+              "cumulative unrecovered cases","new severe cases",
+              "sum of severe cases",
+              "age_category","sex","race_ethnicity","prevalence","incidence")
+str(joint_df_subset)
+var_type <- c(1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0)
 #build linker
-linker <- build_linker(summary_joint_df, variable_description = var_desc, variable_type = var_type)
+linker <- build_linker(joint_df_subset, variable_description = var_desc, variable_type = var_type)
 ## data dictionary built
-dict <- build_dict(my.data = summary_joint_df, linker = linker, option_description = NULL, 
+dict <- build_dict(my.data = joint_df_subset, linker = linker, option_description = NULL, 
                    prompt_varopts = FALSE)
 ```
-
 ```{r}
 #data dictionary looks as follows
 library(kableExtra)
 kable(dict, format = "html", caption = "Data dictionary for CA and LA datasets")
 ```
+
 
 ```{r}
 library(knitr)
