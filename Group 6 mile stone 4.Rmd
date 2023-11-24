@@ -17,7 +17,7 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r }
+```{r , include=FALSE}
 library(readr)
 library(dplyr)
 library(tidyr)
@@ -314,7 +314,24 @@ formattable(head(new_final_joint_data, 10), list(
 ##For each visual, include; Code used to generate visual,Legend (if necessary),1-2 sentence interpretation
 
 ```{r}
+# A plot of county against new infection
+library(dplyr)
 
+# new_final_joint_data is the dataframe
+new_final_joint_data_summary <- new_final_joint_data %>%
+  group_by(county) %>%
+  summarise(total_new_infections = sum(new_infection))
+
+
+#After summarizing the data, you can use the new dataframe `new_final_joint_data_summary` to create the bar plot:
+
+
+ggplot(new_final_joint_data_summary, aes(x = county, y = total_new_infections)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "New Infections by County",
+       x = "County",
+       y = "New Infections") +
+  theme_minimal()
 ```
 
 # Html file that is professionally prepared for presentation and published to RPubs
@@ -322,6 +339,19 @@ formattable(head(new_final_joint_data, 10), list(
 # Showing data structure with str() is okay.
 
 ```{r}
+# new_final_joint_data is your dataframe
+library(dplyr)
 
+# Filter out rows with missing values in new_infection or infection_rate_county
+
+# Create the scatter plot using the filtered data
+ggplot(df_ca_vax_rates, aes(x = "Cumulative Fully Vaccinated", y = "Estimated Population")) +
+  geom_point(color = "skyblue") +
+  labs(title = "Correlation between Estimate Total Population and Cumulative Fully Vaccinated Persons",
+       x = "Cumulative Fully Vaccinated",
+       y = "Estimated Total Population") +
+  theme_minimal()
 ```
+
+
 
