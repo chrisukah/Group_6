@@ -584,7 +584,7 @@ sum(is.na(df1))</code></pre>
 <pre class="r"><code>sum(is.na(df3_new_missing))#to check if any more missing in df</code></pre>
 <pre><code>## [1] 0</code></pre>
 <p>##Recode Male =1 and Female = 2</p>
-<pre class="r"><code>df2_new$sex &lt;- ifelse(df2_new$sex == &quot;MALE&quot;, 1, 2)</code></pre>
+<pre class="r"><code>#df2_new$sex &lt;- ifelse(df2_new$sex == &quot;MALE&quot;, 1, 2)</code></pre>
 <p>#summary statistics ussing the describe function from the psych
 package</p>
 <pre class="r"><code>library(psych)</code></pre>
@@ -638,7 +638,7 @@ package</p>
 <pre><code>##                      vars    n      mean        sd median   trimmed       mad
 ## date_diagnosis*         1 1826    120.91     70.46    120    120.89     93.40
 ## age_category*           2 1826      2.53      1.12      3      2.54      1.48
-## sex                     3 1826      1.50      0.50      1      1.50      0.00
+## sex*                    3 1826      1.50      0.50      2      1.50      0.00
 ## race_eth*               4 1826      4.01      1.99      4      4.01      2.97
 ## dx_new                  5 1826   2416.36   5153.25    365   1197.99    536.70
 ## recovered_new           6 1826   2416.21   5130.09    370   1205.89    541.15
@@ -651,7 +651,7 @@ package</p>
 ##                      min     max   range  skew kurtosis      se
 ## date_diagnosis*        1     243     242  0.00    -1.24    1.65
 ## age_category*          1       4       3 -0.04    -1.36    0.03
-## sex                    1       2       1  0.00    -2.00    0.01
+## sex*                   1       2       1  0.00    -2.00    0.01
 ## race_eth*              1       7       6  0.01    -1.24    0.05
 ## dx_new                 0   51350   51350  4.30    24.56  120.60
 ## recovered_new          0   50717   50717  4.28    24.34  120.05
@@ -757,7 +757,7 @@ df2_1$dt_diagnosis &lt;- parse_date_time(df2_1$dt_diagnosis, orders = &quot;dmy&
 df2_new$dt_diagnosis &lt;- format(df2_1$dt_diagnosis, &quot;%Y-%m-%d&quot;)
 # Verify the updated date format</code></pre>
 <pre class="r"><code># hormonising code of df1 to match df2_1
-df1$sex &lt;- ifelse(df1$sex == &quot;MALE&quot;, 1, 2)
+#df1$sex &lt;- ifelse(df1$sex == &quot;MALE&quot;, 1, 2)
 #q5, datasets from CA and LA are bound together to one dataset called join_df using left_join function
 joint_df &lt;- left_join(df1, df2_1, by = join_by(new_infections, new_recovered, count_susceptible, current_infected, cumulative_infected, cumulative_recovered, new_severe, cumulative_severe, age_category, sex, dt_diagnosis))</code></pre>
 <pre class="r"><code>#data aggregation to have descriptive statistics by county
@@ -1217,6 +1217,1741 @@ colnames(df_vax)</code></pre>
          age_category=age_group)
 df_vax$sex &lt;- ifelse(df_vax$sex == &quot;male&quot;, &quot;MALE&quot;, &quot;FEMALE&quot;)
 #str(df_vax)</code></pre>
+<p>#subset df_vax by using select function to work with variables of
+interest</p>
+<pre class="r"><code>sum(is.na(df_vax$race_ethnicity)) # to count NA in race_ethnicity</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="r"><code>#df_vax$age_category &lt;- unlist(df_vax$age_category) # to convert age_category from list to character
+subset_df_vax &lt;- df_vax %&gt;% 
+  select(-county_type, -suppress_data, -race_ethnicity, -age_category)</code></pre>
+<p>#Joining all 3 datasets (already join LA and CA data(df_ca_and_la)
+with subsetted vax rates data(subset_df_vax))</p>
+<pre class="r"><code>final_joint_data &lt;- full_join(df_Ca_and_la, subset_df_vax, 
+                              by = join_by(county, sex, population))</code></pre>
+<p>#Calculate any remaining data elements needed for analysis</p>
+<pre class="r"><code>#rearrange some columns in final_joint_data
+final_joint_data_arrange &lt;- final_joint_data[do.call(order, c(final_joint_data, list(decreasing=TRUE))),]
+# calculate any remaining data elements
+new_final_joint_data &lt;- final_joint_data %&gt;% 
+  group_by(county) %&gt;% 
+  mutate(infection_rate_by_county= (new_infections/population)*100000) %&gt;% 
+  ungroup()</code></pre>
+<p>#Show code used to create joined datase</p>
+<pre class="r"><code>new_final_joint_data &lt;- full_join(df_Ca_and_la, subset_df_vax, 
+                              by = join_by(county, sex, population)) %&gt;% 
+   group_by(county) %&gt;% 
+  mutate(infection_rate_by_county= (new_infections/population)*100000) %&gt;% 
+  ungroup()
+str(new_final_joint_data)</code></pre>
+<pre><code>## tibble [75,526 × 26] (S3: tbl_df/tbl/data.frame)
+##  $ county                       : chr [1:75526] &quot;Alameda County&quot; &quot;Alameda County&quot; &quot;Alameda County&quot; &quot;Alameda County&quot; ...
+##  $ new_infections               : num [1:75526] 75 76 89 54 68 66 195 339 160 341 ...
+##  $ new_recovered                : num [1:75526] 119 77 75 88 55 67 66 195 334 166 ...
+##  $ count_susceptible            : num [1:75526] 45925 45849 45760 45706 45638 ...
+##  $ current_infected             : num [1:75526] 77 76 90 56 69 68 197 341 167 342 ...
+##  $ cumulative_infected          : num [1:75526] 196 272 361 415 483 ...
+##  $ cumulative_recovered         : num [1:75526] 119 196 271 359 414 ...
+##  $ new_unrecovered              : num [1:75526] 2 0 1 2 1 2 2 2 7 1 ...
+##  $ cumulative_unrecovered       : num [1:75526] 2 2 3 5 6 8 10 12 19 20 ...
+##  $ new_severe                   : num [1:75526] 0 0 0 0 1 0 1 0 0 0 ...
+##  $ cumulative_severe            : num [1:75526] 0 0 0 0 1 1 2 2 2 2 ...
+##  $ age_category                 : chr [1:75526] &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; ...
+##  $ sex                          : chr [1:75526] &quot;FEMALE&quot; &quot;FEMALE&quot; &quot;FEMALE&quot; &quot;FEMALE&quot; ...
+##  $ race_ethnicity               : num [1:75526] 1 1 1 1 1 1 1 1 1 1 ...
+##  $ dt_diagnosis                 : POSIXct[1:75526], format: &quot;2022-10-10&quot; &quot;2022-10-16&quot; ...
+##  $ population                   : num [1:75526] 46000 46000 46000 46000 46000 46000 46000 46000 46000 46000 ...
+##  $ prevalence                   : num [1:75526] 0.426 0.591 0.785 0.902 1.05 ...
+##  $ incidence                    : num [1:75526] 0.163 0.165 0.193 0.117 0.148 ...
+##  $ dt_admin                     : Date[1:75526], format: NA NA ...
+##  $ total_partial_vaccinated     : num [1:75526] NA NA NA NA NA NA NA NA NA NA ...
+##  $ cumulative_fully_vaccinated  : num [1:75526] NA NA NA NA NA NA NA NA NA NA ...
+##  $ cumulative_at_least_o_ne_dose: num [1:75526] NA NA NA NA NA NA NA NA NA NA ...
+##  $ cumulative_unvaccinated      : num [1:75526] NA NA NA NA NA NA NA NA NA NA ...
+##  $ cumulative_up_to_date_vax    : num [1:75526] NA NA NA NA NA NA NA NA NA NA ...
+##  $ quarter                      : Date[1:75526], format: NA NA ...
+##  $ infection_rate_by_county     : num [1:75526] 163 165 193 117 148 ...</code></pre>
+<p>#One print quality table as requested in scenario #For each visual,
+include; Code used to generate visual,Legend (if necessary),1-2 sentence
+interpretation</p>
+<pre class="r"><code>#install gtsummary package to create beautiful tables
+install.packages(&quot;gtsummary&quot;)</code></pre>
+<pre><code>## Installing package into &#39;/usr/local/lib/R/site-library&#39;
+## (as &#39;lib&#39; is unspecified)</code></pre>
+<pre class="r"><code>library(gtsummary)</code></pre>
+<pre><code>## #Uighur</code></pre>
+<pre class="r"><code>#creating professional descriptive statistics for our joint data using summary function of gtsummary #package which will distinguish summary statistics for categorical data and #numerical  
+tbl_summary(new_final_joint_data)</code></pre>
+<div id="bklotnfvpj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#bklotnfvpj table {
+font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+#bklotnfvpj thead, #bklotnfvpj tbody, #bklotnfvpj tfoot, #bklotnfvpj tr, #bklotnfvpj td, #bklotnfvpj th {
+border-style: none;
+}
+#bklotnfvpj p {
+margin: 0;
+padding: 0;
+}
+#bklotnfvpj .gt_table {
+display: table;
+border-collapse: collapse;
+line-height: normal;
+margin-left: auto;
+margin-right: auto;
+color: #333333;
+font-size: 16px;
+font-weight: normal;
+font-style: normal;
+background-color: #FFFFFF;
+width: auto;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #A8A8A8;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #A8A8A8;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+}
+#bklotnfvpj .gt_caption {
+padding-top: 4px;
+padding-bottom: 4px;
+}
+#bklotnfvpj .gt_title {
+color: #333333;
+font-size: 125%;
+font-weight: initial;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-color: #FFFFFF;
+border-bottom-width: 0;
+}
+#bklotnfvpj .gt_subtitle {
+color: #333333;
+font-size: 85%;
+font-weight: initial;
+padding-top: 3px;
+padding-bottom: 5px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-color: #FFFFFF;
+border-top-width: 0;
+}
+#bklotnfvpj .gt_heading {
+background-color: #FFFFFF;
+text-align: center;
+border-bottom-color: #FFFFFF;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#bklotnfvpj .gt_bottom_border {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#bklotnfvpj .gt_col_headings {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+}
+#bklotnfvpj .gt_col_heading {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 6px;
+padding-left: 5px;
+padding-right: 5px;
+overflow-x: hidden;
+}
+#bklotnfvpj .gt_column_spanner_outer {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: normal;
+text-transform: inherit;
+padding-top: 0;
+padding-bottom: 0;
+padding-left: 4px;
+padding-right: 4px;
+}
+#bklotnfvpj .gt_column_spanner_outer:first-child {
+padding-left: 0;
+}
+#bklotnfvpj .gt_column_spanner_outer:last-child {
+padding-right: 0;
+}
+#bklotnfvpj .gt_column_spanner {
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: bottom;
+padding-top: 5px;
+padding-bottom: 5px;
+overflow-x: hidden;
+display: inline-block;
+width: 100%;
+}
+#bklotnfvpj .gt_spanner_row {
+border-bottom-style: hidden;
+}
+#bklotnfvpj .gt_group_heading {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+text-align: left;
+}
+#bklotnfvpj .gt_empty_group_heading {
+padding: 0.5px;
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+vertical-align: middle;
+}
+#bklotnfvpj .gt_from_md > :first-child {
+margin-top: 0;
+}
+#bklotnfvpj .gt_from_md > :last-child {
+margin-bottom: 0;
+}
+#bklotnfvpj .gt_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+margin: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+border-top-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 1px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 1px;
+border-right-color: #D3D3D3;
+vertical-align: middle;
+overflow-x: hidden;
+}
+#bklotnfvpj .gt_stub {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+}
+#bklotnfvpj .gt_stub_row_group {
+color: #333333;
+background-color: #FFFFFF;
+font-size: 100%;
+font-weight: initial;
+text-transform: inherit;
+border-right-style: solid;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+padding-left: 5px;
+padding-right: 5px;
+vertical-align: top;
+}
+#bklotnfvpj .gt_row_group_first td {
+border-top-width: 2px;
+}
+#bklotnfvpj .gt_row_group_first th {
+border-top-width: 2px;
+}
+#bklotnfvpj .gt_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#bklotnfvpj .gt_first_summary_row {
+border-top-style: solid;
+border-top-color: #D3D3D3;
+}
+#bklotnfvpj .gt_first_summary_row.thick {
+border-top-width: 2px;
+}
+#bklotnfvpj .gt_last_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#bklotnfvpj .gt_grand_summary_row {
+color: #333333;
+background-color: #FFFFFF;
+text-transform: inherit;
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#bklotnfvpj .gt_first_grand_summary_row {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-top-style: double;
+border-top-width: 6px;
+border-top-color: #D3D3D3;
+}
+#bklotnfvpj .gt_last_grand_summary_row_top {
+padding-top: 8px;
+padding-bottom: 8px;
+padding-left: 5px;
+padding-right: 5px;
+border-bottom-style: double;
+border-bottom-width: 6px;
+border-bottom-color: #D3D3D3;
+}
+#bklotnfvpj .gt_striped {
+background-color: rgba(128, 128, 128, 0.05);
+}
+#bklotnfvpj .gt_table_body {
+border-top-style: solid;
+border-top-width: 2px;
+border-top-color: #D3D3D3;
+border-bottom-style: solid;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+}
+#bklotnfvpj .gt_footnotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#bklotnfvpj .gt_footnote {
+margin: 0px;
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#bklotnfvpj .gt_sourcenotes {
+color: #333333;
+background-color: #FFFFFF;
+border-bottom-style: none;
+border-bottom-width: 2px;
+border-bottom-color: #D3D3D3;
+border-left-style: none;
+border-left-width: 2px;
+border-left-color: #D3D3D3;
+border-right-style: none;
+border-right-width: 2px;
+border-right-color: #D3D3D3;
+}
+#bklotnfvpj .gt_sourcenote {
+font-size: 90%;
+padding-top: 4px;
+padding-bottom: 4px;
+padding-left: 5px;
+padding-right: 5px;
+}
+#bklotnfvpj .gt_left {
+text-align: left;
+}
+#bklotnfvpj .gt_center {
+text-align: center;
+}
+#bklotnfvpj .gt_right {
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+#bklotnfvpj .gt_font_normal {
+font-weight: normal;
+}
+#bklotnfvpj .gt_font_bold {
+font-weight: bold;
+}
+#bklotnfvpj .gt_font_italic {
+font-style: italic;
+}
+#bklotnfvpj .gt_super {
+font-size: 65%;
+}
+#bklotnfvpj .gt_footnote_marks {
+font-size: 75%;
+vertical-align: 0.4em;
+position: initial;
+}
+#bklotnfvpj .gt_asterisk {
+font-size: 100%;
+vertical-align: 0;
+}
+#bklotnfvpj .gt_indent_1 {
+text-indent: 5px;
+}
+#bklotnfvpj .gt_indent_2 {
+text-indent: 10px;
+}
+#bklotnfvpj .gt_indent_3 {
+text-indent: 15px;
+}
+#bklotnfvpj .gt_indent_4 {
+text-indent: 20px;
+}
+#bklotnfvpj .gt_indent_5 {
+text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="&lt;strong&gt;Characteristic&lt;/strong&gt;"><strong>Characteristic</strong></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="&lt;strong&gt;N = 75,526&lt;/strong&gt;&lt;span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;&gt;&lt;sup&gt;1&lt;/sup&gt;&lt;/span&gt;"><strong>N = 75,526</strong><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="label" class="gt_row gt_left">county</td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Alameda</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Alameda County</td>
+<td headers="stat_0" class="gt_row gt_center">1,620 (2.1%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Alpine</td>
+<td headers="stat_0" class="gt_row gt_center">74 (&lt;0.1%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Alpine County</td>
+<td headers="stat_0" class="gt_row gt_center">136 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Amador</td>
+<td headers="stat_0" class="gt_row gt_center">181 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Amador County</td>
+<td headers="stat_0" class="gt_row gt_center">762 (1.0%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Butte</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Butte County</td>
+<td headers="stat_0" class="gt_row gt_center">1,289 (1.7%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Calaveras</td>
+<td headers="stat_0" class="gt_row gt_center">167 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Calaveras County</td>
+<td headers="stat_0" class="gt_row gt_center">790 (1.0%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Colusa</td>
+<td headers="stat_0" class="gt_row gt_center">154 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Colusa County</td>
+<td headers="stat_0" class="gt_row gt_center">592 (0.8%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Contra Costa</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Contra Costa County</td>
+<td headers="stat_0" class="gt_row gt_center">1,587 (2.1%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Del Norte</td>
+<td headers="stat_0" class="gt_row gt_center">168 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Del Norte County</td>
+<td headers="stat_0" class="gt_row gt_center">821 (1.1%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    El Dorado</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    El Dorado County</td>
+<td headers="stat_0" class="gt_row gt_center">1,196 (1.6%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Fresno</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Fresno County</td>
+<td headers="stat_0" class="gt_row gt_center">1,516 (2.0%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Glenn</td>
+<td headers="stat_0" class="gt_row gt_center">156 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Glenn County</td>
+<td headers="stat_0" class="gt_row gt_center">706 (0.9%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Humboldt</td>
+<td headers="stat_0" class="gt_row gt_center">194 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Humboldt County</td>
+<td headers="stat_0" class="gt_row gt_center">1,218 (1.6%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Imperial</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Imperial County</td>
+<td headers="stat_0" class="gt_row gt_center">1,099 (1.5%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Inyo</td>
+<td headers="stat_0" class="gt_row gt_center">155 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Inyo County</td>
+<td headers="stat_0" class="gt_row gt_center">639 (0.8%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Kern</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Kern County</td>
+<td headers="stat_0" class="gt_row gt_center">1,491 (2.0%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Kings</td>
+<td headers="stat_0" class="gt_row gt_center">168 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Kings County</td>
+<td headers="stat_0" class="gt_row gt_center">1,165 (1.5%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Lake</td>
+<td headers="stat_0" class="gt_row gt_center">167 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Lake County</td>
+<td headers="stat_0" class="gt_row gt_center">1,008 (1.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Lassen</td>
+<td headers="stat_0" class="gt_row gt_center">142 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Lassen County</td>
+<td headers="stat_0" class="gt_row gt_center">743 (1.0%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Los Angeles</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Madera</td>
+<td headers="stat_0" class="gt_row gt_center">181 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Madera County</td>
+<td headers="stat_0" class="gt_row gt_center">1,152 (1.5%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Marin</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Marin County</td>
+<td headers="stat_0" class="gt_row gt_center">1,258 (1.7%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Mariposa</td>
+<td headers="stat_0" class="gt_row gt_center">167 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Mariposa County</td>
+<td headers="stat_0" class="gt_row gt_center">589 (0.8%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Mendocino</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Mendocino County</td>
+<td headers="stat_0" class="gt_row gt_center">1,046 (1.4%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Merced</td>
+<td headers="stat_0" class="gt_row gt_center">182 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Merced County</td>
+<td headers="stat_0" class="gt_row gt_center">1,293 (1.7%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Modoc</td>
+<td headers="stat_0" class="gt_row gt_center">129 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Modoc County</td>
+<td headers="stat_0" class="gt_row gt_center">428 (0.6%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Mono</td>
+<td headers="stat_0" class="gt_row gt_center">153 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Mono County</td>
+<td headers="stat_0" class="gt_row gt_center">476 (0.6%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Monterey</td>
+<td headers="stat_0" class="gt_row gt_center">194 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Monterey County</td>
+<td headers="stat_0" class="gt_row gt_center">1,440 (1.9%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Napa</td>
+<td headers="stat_0" class="gt_row gt_center">194 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Napa County</td>
+<td headers="stat_0" class="gt_row gt_center">1,160 (1.5%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Nevada</td>
+<td headers="stat_0" class="gt_row gt_center">194 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Nevada County</td>
+<td headers="stat_0" class="gt_row gt_center">931 (1.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Orange</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Orange County</td>
+<td headers="stat_0" class="gt_row gt_center">1,631 (2.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Placer</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Placer County</td>
+<td headers="stat_0" class="gt_row gt_center">1,403 (1.9%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Plumas</td>
+<td headers="stat_0" class="gt_row gt_center">155 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Plumas County</td>
+<td headers="stat_0" class="gt_row gt_center">562 (0.7%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Riverside</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Riverside County</td>
+<td headers="stat_0" class="gt_row gt_center">1,622 (2.1%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Sacramento</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Sacramento County</td>
+<td headers="stat_0" class="gt_row gt_center">1,639 (2.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Benito</td>
+<td headers="stat_0" class="gt_row gt_center">194 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Benito County</td>
+<td headers="stat_0" class="gt_row gt_center">855 (1.1%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Bernardino</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Bernardino County</td>
+<td headers="stat_0" class="gt_row gt_center">1,620 (2.1%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Diego</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Diego County</td>
+<td headers="stat_0" class="gt_row gt_center">1,659 (2.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Francisco</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Francisco County</td>
+<td headers="stat_0" class="gt_row gt_center">1,518 (2.0%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Joaquin</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Joaquin County</td>
+<td headers="stat_0" class="gt_row gt_center">1,558 (2.1%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Luis Obispo</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Luis Obispo County</td>
+<td headers="stat_0" class="gt_row gt_center">1,245 (1.6%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Mateo</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    San Mateo County</td>
+<td headers="stat_0" class="gt_row gt_center">1,548 (2.0%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Santa Barbara</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Santa Barbara County</td>
+<td headers="stat_0" class="gt_row gt_center">1,374 (1.8%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Santa Clara</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Santa Clara County</td>
+<td headers="stat_0" class="gt_row gt_center">1,589 (2.1%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Santa Cruz</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Santa Cruz County</td>
+<td headers="stat_0" class="gt_row gt_center">1,242 (1.6%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Shasta</td>
+<td headers="stat_0" class="gt_row gt_center">182 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Shasta County</td>
+<td headers="stat_0" class="gt_row gt_center">1,213 (1.6%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Sierra</td>
+<td headers="stat_0" class="gt_row gt_center">102 (0.1%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Sierra County</td>
+<td headers="stat_0" class="gt_row gt_center">226 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Siskiyou</td>
+<td headers="stat_0" class="gt_row gt_center">169 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Siskiyou County</td>
+<td headers="stat_0" class="gt_row gt_center">901 (1.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Solano</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Solano County</td>
+<td headers="stat_0" class="gt_row gt_center">1,527 (2.0%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Sonoma</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Sonoma County</td>
+<td headers="stat_0" class="gt_row gt_center">1,463 (1.9%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Stanislaus</td>
+<td headers="stat_0" class="gt_row gt_center">182 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Stanislaus County</td>
+<td headers="stat_0" class="gt_row gt_center">1,515 (2.0%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Statewide</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Sutter</td>
+<td headers="stat_0" class="gt_row gt_center">181 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Sutter County</td>
+<td headers="stat_0" class="gt_row gt_center">1,189 (1.6%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Tehama</td>
+<td headers="stat_0" class="gt_row gt_center">182 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Tehama County</td>
+<td headers="stat_0" class="gt_row gt_center">885 (1.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Trinity</td>
+<td headers="stat_0" class="gt_row gt_center">155 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Trinity County</td>
+<td headers="stat_0" class="gt_row gt_center">526 (0.7%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Tulare</td>
+<td headers="stat_0" class="gt_row gt_center">193 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Tulare County</td>
+<td headers="stat_0" class="gt_row gt_center">1,370 (1.8%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Tuolumne</td>
+<td headers="stat_0" class="gt_row gt_center">182 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Tuolumne County</td>
+<td headers="stat_0" class="gt_row gt_center">859 (1.1%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Ventura</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Ventura County</td>
+<td headers="stat_0" class="gt_row gt_center">1,475 (2.0%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Yolo</td>
+<td headers="stat_0" class="gt_row gt_center">195 (0.3%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Yolo County</td>
+<td headers="stat_0" class="gt_row gt_center">1,338 (1.8%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Yuba</td>
+<td headers="stat_0" class="gt_row gt_center">181 (0.2%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Yuba County</td>
+<td headers="stat_0" class="gt_row gt_center">1,185 (1.6%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">new_infections</td>
+<td headers="stat_0" class="gt_row gt_center">19 (5, 104)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">new_recovered</td>
+<td headers="stat_0" class="gt_row gt_center">20 (5, 106)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">count_susceptible</td>
+<td headers="stat_0" class="gt_row gt_center">1,595 (348, 9,496)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">current_infected</td>
+<td headers="stat_0" class="gt_row gt_center">22 (5, 118)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">cumulative_infected</td>
+<td headers="stat_0" class="gt_row gt_center">203 (42, 1,227)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">cumulative_recovered</td>
+<td headers="stat_0" class="gt_row gt_center">169 (34, 1,055)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">new_unrecovered</td>
+<td headers="stat_0" class="gt_row gt_center">2 (0, 10)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">cumulative_unrecovered</td>
+<td headers="stat_0" class="gt_row gt_center">15 (3, 98)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">new_severe</td>
+<td headers="stat_0" class="gt_row gt_center">0 (0, 2)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">cumulative_severe</td>
+<td headers="stat_0" class="gt_row gt_center">2 (0, 13)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">age_category</td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    0-17</td>
+<td headers="stat_0" class="gt_row gt_center">16,099 (25%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    18-49</td>
+<td headers="stat_0" class="gt_row gt_center">17,905 (28%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    50-64</td>
+<td headers="stat_0" class="gt_row gt_center">15,643 (24%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    65+</td>
+<td headers="stat_0" class="gt_row gt_center">15,241 (23%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">sex</td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    FEMALE</td>
+<td headers="stat_0" class="gt_row gt_center">43,057 (57%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    MALE</td>
+<td headers="stat_0" class="gt_row gt_center">32,469 (43%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">race_ethnicity</td>
+<td headers="stat_0" class="gt_row gt_center"><br /></td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    1</td>
+<td headers="stat_0" class="gt_row gt_center">13,295 (20%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    2</td>
+<td headers="stat_0" class="gt_row gt_center">8,330 (13%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    3</td>
+<td headers="stat_0" class="gt_row gt_center">7,733 (12%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    4</td>
+<td headers="stat_0" class="gt_row gt_center">9,451 (15%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    5</td>
+<td headers="stat_0" class="gt_row gt_center">4,393 (6.8%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    6</td>
+<td headers="stat_0" class="gt_row gt_center">9,486 (15%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    7</td>
+<td headers="stat_0" class="gt_row gt_center">12,200 (19%)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">dt_diagnosis</td>
+<td headers="stat_0" class="gt_row gt_center">2022-09-30 to 2023-05-06</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">population</td>
+<td headers="stat_0" class="gt_row gt_center">2,786 (565, 16,584)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">prevalence</td>
+<td headers="stat_0" class="gt_row gt_center">19 (4, 36)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">incidence</td>
+<td headers="stat_0" class="gt_row gt_center">1.62 (0.44, 2.66)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">dt_admin</td>
+<td headers="stat_0" class="gt_row gt_center">2020-08-04 to 2023-08-26</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">64,888</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">total_partial_vaccinated</td>
+<td headers="stat_0" class="gt_row gt_center">706 (72, 5,543)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">64,888</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">cumulative_fully_vaccinated</td>
+<td headers="stat_0" class="gt_row gt_center">4,787 (221, 45,769)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">64,888</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">cumulative_at_least_o_ne_dose</td>
+<td headers="stat_0" class="gt_row gt_center">5,888 (434, 52,368)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">64,888</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">cumulative_unvaccinated</td>
+<td headers="stat_0" class="gt_row gt_center">9,105 (1,795, 44,266)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">64,888</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">cumulative_up_to_date_vax</td>
+<td headers="stat_0" class="gt_row gt_center">2 (0, 529)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">64,888</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">quarter</td>
+<td headers="stat_0" class="gt_row gt_center">2020-07-01 to 2023-07-01</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">64,888</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">infection_rate_by_county</td>
+<td headers="stat_0" class="gt_row gt_center">1,618 (438, 2,657)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_0" class="gt_row gt_center">10,638</td></tr>
+  </tbody>
+  
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="2"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span> n (%); Median (IQR); Range</td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+<p>#second table using formattable howing descriptive statistics of
+simulated flu outbreak in entire California and COVID 19 vaccination
+rate</p>
+<pre class="r"><code># using new_joint data frame
+formattable(head(new_final_joint_data, 10), list(
+  col.names = gsub(&quot;_&quot;, &quot; &quot;, names(new_final_joint_data)),
+  caption = &quot;Portion of Summary Statistic of joint simulated data set from California and vaccination rates of COVID 19&quot;
+))</code></pre>
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+county
+</th>
+<th style="text-align:right;">
+new_infections
+</th>
+<th style="text-align:right;">
+new_recovered
+</th>
+<th style="text-align:right;">
+count_susceptible
+</th>
+<th style="text-align:right;">
+current_infected
+</th>
+<th style="text-align:right;">
+cumulative_infected
+</th>
+<th style="text-align:right;">
+cumulative_recovered
+</th>
+<th style="text-align:right;">
+new_unrecovered
+</th>
+<th style="text-align:right;">
+cumulative_unrecovered
+</th>
+<th style="text-align:right;">
+new_severe
+</th>
+<th style="text-align:right;">
+cumulative_severe
+</th>
+<th style="text-align:right;">
+age_category
+</th>
+<th style="text-align:right;">
+sex
+</th>
+<th style="text-align:right;">
+race_ethnicity
+</th>
+<th style="text-align:right;">
+dt_diagnosis
+</th>
+<th style="text-align:right;">
+population
+</th>
+<th style="text-align:right;">
+prevalence
+</th>
+<th style="text-align:right;">
+incidence
+</th>
+<th style="text-align:right;">
+dt_admin
+</th>
+<th style="text-align:right;">
+total_partial_vaccinated
+</th>
+<th style="text-align:right;">
+cumulative_fully_vaccinated
+</th>
+<th style="text-align:right;">
+cumulative_at_least_o_ne_dose
+</th>
+<th style="text-align:right;">
+cumulative_unvaccinated
+</th>
+<th style="text-align:right;">
+cumulative_up_to_date_vax
+</th>
+<th style="text-align:right;">
+quarter
+</th>
+<th style="text-align:right;">
+infection_rate_by_county
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+Alameda County
+</td>
+<td style="text-align:right;">
+75
+</td>
+<td style="text-align:right;">
+119
+</td>
+<td style="text-align:right;">
+45925
+</td>
+<td style="text-align:right;">
+77
+</td>
+<td style="text-align:right;">
+196
+</td>
+<td style="text-align:right;">
+119
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0-17
+</td>
+<td style="text-align:right;">
+FEMALE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2022-10-10
+</td>
+<td style="text-align:right;">
+46000
+</td>
+<td style="text-align:right;">
+0.4260870
+</td>
+<td style="text-align:right;">
+0.1630435
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+163.0435
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Alameda County
+</td>
+<td style="text-align:right;">
+76
+</td>
+<td style="text-align:right;">
+77
+</td>
+<td style="text-align:right;">
+45849
+</td>
+<td style="text-align:right;">
+76
+</td>
+<td style="text-align:right;">
+272
+</td>
+<td style="text-align:right;">
+196
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0-17
+</td>
+<td style="text-align:right;">
+FEMALE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2022-10-16
+</td>
+<td style="text-align:right;">
+46000
+</td>
+<td style="text-align:right;">
+0.5913043
+</td>
+<td style="text-align:right;">
+0.1652174
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+165.2174
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Alameda County
+</td>
+<td style="text-align:right;">
+89
+</td>
+<td style="text-align:right;">
+75
+</td>
+<td style="text-align:right;">
+45760
+</td>
+<td style="text-align:right;">
+90
+</td>
+<td style="text-align:right;">
+361
+</td>
+<td style="text-align:right;">
+271
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0-17
+</td>
+<td style="text-align:right;">
+FEMALE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2022-10-24
+</td>
+<td style="text-align:right;">
+46000
+</td>
+<td style="text-align:right;">
+0.7847826
+</td>
+<td style="text-align:right;">
+0.1934783
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+193.4783
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Alameda County
+</td>
+<td style="text-align:right;">
+54
+</td>
+<td style="text-align:right;">
+88
+</td>
+<td style="text-align:right;">
+45706
+</td>
+<td style="text-align:right;">
+56
+</td>
+<td style="text-align:right;">
+415
+</td>
+<td style="text-align:right;">
+359
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0-17
+</td>
+<td style="text-align:right;">
+FEMALE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2022-10-27
+</td>
+<td style="text-align:right;">
+46000
+</td>
+<td style="text-align:right;">
+0.9021739
+</td>
+<td style="text-align:right;">
+0.1173913
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+117.3913
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Alameda County
+</td>
+<td style="text-align:right;">
+68
+</td>
+<td style="text-align:right;">
+55
+</td>
+<td style="text-align:right;">
+45638
+</td>
+<td style="text-align:right;">
+69
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+414
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0-17
+</td>
+<td style="text-align:right;">
+FEMALE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2022-11-10
+</td>
+<td style="text-align:right;">
+46000
+</td>
+<td style="text-align:right;">
+1.0500000
+</td>
+<td style="text-align:right;">
+0.1478261
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+147.8261
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Alameda County
+</td>
+<td style="text-align:right;">
+66
+</td>
+<td style="text-align:right;">
+67
+</td>
+<td style="text-align:right;">
+45572
+</td>
+<td style="text-align:right;">
+68
+</td>
+<td style="text-align:right;">
+549
+</td>
+<td style="text-align:right;">
+481
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0-17
+</td>
+<td style="text-align:right;">
+FEMALE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2022-11-15
+</td>
+<td style="text-align:right;">
+46000
+</td>
+<td style="text-align:right;">
+1.1934783
+</td>
+<td style="text-align:right;">
+0.1434783
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+143.4783
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Alameda County
+</td>
+<td style="text-align:right;">
+195
+</td>
+<td style="text-align:right;">
+66
+</td>
+<td style="text-align:right;">
+45377
+</td>
+<td style="text-align:right;">
+197
+</td>
+<td style="text-align:right;">
+744
+</td>
+<td style="text-align:right;">
+547
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0-17
+</td>
+<td style="text-align:right;">
+FEMALE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2022-11-19
+</td>
+<td style="text-align:right;">
+46000
+</td>
+<td style="text-align:right;">
+1.6173913
+</td>
+<td style="text-align:right;">
+0.4239130
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+423.9130
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Alameda County
+</td>
+<td style="text-align:right;">
+339
+</td>
+<td style="text-align:right;">
+195
+</td>
+<td style="text-align:right;">
+45038
+</td>
+<td style="text-align:right;">
+341
+</td>
+<td style="text-align:right;">
+1083
+</td>
+<td style="text-align:right;">
+742
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0-17
+</td>
+<td style="text-align:right;">
+FEMALE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2022-11-29
+</td>
+<td style="text-align:right;">
+46000
+</td>
+<td style="text-align:right;">
+2.3543478
+</td>
+<td style="text-align:right;">
+0.7369565
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+736.9565
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Alameda County
+</td>
+<td style="text-align:right;">
+160
+</td>
+<td style="text-align:right;">
+334
+</td>
+<td style="text-align:right;">
+44878
+</td>
+<td style="text-align:right;">
+167
+</td>
+<td style="text-align:right;">
+1243
+</td>
+<td style="text-align:right;">
+1076
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0-17
+</td>
+<td style="text-align:right;">
+FEMALE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2022-11-29
+</td>
+<td style="text-align:right;">
+46000
+</td>
+<td style="text-align:right;">
+2.7021739
+</td>
+<td style="text-align:right;">
+0.3478261
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+347.8261
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+Alameda County
+</td>
+<td style="text-align:right;">
+341
+</td>
+<td style="text-align:right;">
+166
+</td>
+<td style="text-align:right;">
+44537
+</td>
+<td style="text-align:right;">
+342
+</td>
+<td style="text-align:right;">
+1584
+</td>
+<td style="text-align:right;">
+1242
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0-17
+</td>
+<td style="text-align:right;">
+FEMALE
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2022-12-09
+</td>
+<td style="text-align:right;">
+46000
+</td>
+<td style="text-align:right;">
+3.4434783
+</td>
+<td style="text-align:right;">
+0.7413043
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+741.3043
+</td>
+</tr>
+</tbody>
+</table>
+<p>#One print quality plot or chart as requested in scenario ##For each
+visual, include; Code used to generate visual,Legend (if necessary),1-2
+sentence interpretation</p>
+</div>
+<div id="html-file-that-is-professionally-prepared-for-presentation-and-published-to-rpubs" class="section level1">
+<h1>Html file that is professionally prepared for presentation and
+published to RPubs</h1>
+</div>
+<div id="only-the-necessary-information-is-in-the-output-e.g.-suppress-entire-data-frame" class="section level1">
+<h1>Only the necessary information is in the output (e.g., suppress
+entire data frame</h1>
+</div>
+<div id="showing-data-structure-with-str-is-okay." class="section level1">
+<h1>Showing data structure with str() is okay.</h1>
 </div>
 
 

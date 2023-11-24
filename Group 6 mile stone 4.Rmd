@@ -104,7 +104,7 @@ sum(is.na(df3_new_missing))#to check if any more missing in df
 ##Recode Male =1 and Female = 2
 
 ```{r}
-df2_new$sex <- ifelse(df2_new$sex == "MALE", 1, 2)
+#df2_new$sex <- ifelse(df2_new$sex == "MALE", 1, 2)
 ```
 
 #summary statistics ussing the describe function from the psych package
@@ -155,7 +155,7 @@ df2_new$dt_diagnosis <- format(df2_1$dt_diagnosis, "%Y-%m-%d")
 ```
 ```{r}
 # hormonising code of df1 to match df2_1
-df1$sex <- ifelse(df1$sex == "MALE", 1, 2)
+#df1$sex <- ifelse(df1$sex == "MALE", 1, 2)
 #q5, datasets from CA and LA are bound together to one dataset called join_df using left_join function
 joint_df <- left_join(df1, df2_1, by = join_by(new_infections, new_recovered, count_susceptible, current_infected, cumulative_infected, cumulative_recovered, new_severe, cumulative_severe, age_category, sex, dt_diagnosis))
 
@@ -250,5 +250,78 @@ df_vax <- df_vax %>%
          age_category=age_group)
 df_vax$sex <- ifelse(df_vax$sex == "male", "MALE", "FEMALE")
 #str(df_vax)
+```
+
+#subset df_vax by using select function to work with variables of interest
+
+```{r}
+sum(is.na(df_vax$race_ethnicity)) # to count NA in race_ethnicity
+#df_vax$age_category <- unlist(df_vax$age_category) # to convert age_category from list to character
+subset_df_vax <- df_vax %>% 
+  select(-county_type, -suppress_data, -race_ethnicity, -age_category)
+```
+#Joining all 3 datasets (already join LA and CA data(df_ca_and_la) with subsetted vax rates data(subset_df_vax))
+
+```{r}
+final_joint_data <- full_join(df_Ca_and_la, subset_df_vax, 
+                              by = join_by(county, sex, population))
+```
+
+#Calculate any remaining data elements needed for analysis
+
+```{r}
+#rearrange some columns in final_joint_data
+final_joint_data_arrange <- final_joint_data[do.call(order, c(final_joint_data, list(decreasing=TRUE))),]
+# calculate any remaining data elements
+new_final_joint_data <- final_joint_data %>% 
+  group_by(county) %>% 
+  mutate(infection_rate_by_county= (new_infections/population)*100000) %>% 
+  ungroup()
+```
+
+#Show code used to create joined datase
+
+```{r}
+new_final_joint_data <- full_join(df_Ca_and_la, subset_df_vax, 
+                              by = join_by(county, sex, population)) %>% 
+   group_by(county) %>% 
+  mutate(infection_rate_by_county= (new_infections/population)*100000) %>% 
+  ungroup()
+str(new_final_joint_data)
+```
+
+#One print quality table as requested in scenario
+#For each visual, include; Code used to generate visual,Legend (if necessary),1-2 sentence interpretation
+
+```{r}
+#install gtsummary package to create beautiful tables
+install.packages("gtsummary")
+library(gtsummary)
+#creating professional descriptive statistics for our joint data using summary function of gtsummary #package which will distinguish summary statistics for categorical data and #numerical  
+tbl_summary(new_final_joint_data)
+```
+
+#second table using formattable howing descriptive statistics of simulated flu outbreak in entire California and COVID 19 vaccination rate
+
+```{r}
+# using new_joint data frame
+formattable(head(new_final_joint_data, 10), list(
+  col.names = gsub("_", " ", names(new_final_joint_data)),
+  caption = "Portion of Summary Statistic of joint simulated data set from California and vaccination rates of COVID 19"
+))
+```
+#One print quality plot or chart as requested in scenario
+##For each visual, include; Code used to generate visual,Legend (if necessary),1-2 sentence interpretation
+
+```{r}
+
+```
+
+# Html file that is professionally prepared for presentation and published to RPubs
+# Only the necessary information is in the output (e.g., suppress entire data frame
+# Showing data structure with str() is okay.
+
+```{r}
+
 ```
 
