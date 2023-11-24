@@ -226,39 +226,29 @@ formattable(head(df4, 10), list(
 ))
 ```
 
-```{r}
-#Import data on vaccination rate
-df_vax<-read.csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/ca_vax_rates_quarter.csv")
+##Final datasets for creation of visualization
+#cleaning flu_ca_vax
+
+```{r cleaning df_vax from vax_rates data}
+# renaming joint data set of LA and CA from Milestone 3 and subsetting the joint data
+df_Ca_and_la <- joint_df %>% select(-race_eth)# remove race_eth
+df_vax <- df3_new_missing # assigning new name (df_vax) to vax_rates data
+
+#using pivot wider to seperate demographic variables and clean new colnames in df_vax with janitor function
+df_vax <- df_vax %>% pivot_wider(names_from = demographic_category,
+                                  values_from = demographic_value, values_fn = list) 
+ df_vax <- janitor::clean_names(df_vax)
+colnames(df_vax)
+colnames(df_Ca_and_la)
 ```
 
+#rename new colnames in df_vax to match df_ca_and_la colnames
 ```{r}
-#Study dataset on vaccination rate
-str(df_vax)
+df_vax <- df_vax %>%
+  rename(county=county_name,
+         sex=gender,
+         age_category=age_group)
+df_vax$sex <- ifelse(df_vax$sex == "male", "MALE", "FEMALE")
+#str(df_vax)
 ```
-
-
-```{r}
-#HARMONISE COLUMN NAMES IN THE df_vax Dataframe
-# Get the current column names
-current_colnames <- colnames(df_vax)
-
-# Convert column names to lower case
-new_colnames <- tolower(current_colnames)
-
-# Replace dots with underscores
-new_colnames <- gsub("\\.", "_", new_colnames)
-
-# Assign the new column names to the dataframe
-colnames(df_vax) <- new_colnames
-head(df_vax)
-```
-
-```{r}
-# Rename similar columns in the two datasets to have same names
-df_vax1 <- df_vax %>%
-  rename(
-county = county_name,
-age_group = demographic_value,)
-```
-
 
