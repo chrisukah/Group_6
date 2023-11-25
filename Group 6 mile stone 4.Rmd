@@ -33,7 +33,7 @@ df_sim_flu_lacounty <-read_csv("https://raw.githubusercontent.com/PHW290/phw251_
 
 #Recode Recode column names, values, or formats that are in discordant #(dates, etc)
 
-```{r }
+```{r, include=FALSE}
 df1 <- df_sim_flu_ca %>% rename(population=pop, age_category=age_cat) 
 
 df2 <- df_sim_flu_lacounty %>% rename_all(tolower) %>%
@@ -48,7 +48,7 @@ str(df2)
 str(df3)
 
 ```
-```{r}
+```{r, include=FALSE}
 # Using dplyr
 # Remove duplicate rows (all columns)
 library(dplyr)
@@ -58,7 +58,7 @@ df3 <- df3 %>% distinct()
 ```
 
 
-```{r}
+```{r, include=FALSE}
 #unique() to identify misspellings in data sets to harmonise spellings
 unique(df1$sex)
 unique(df2$race_eth)
@@ -67,7 +67,7 @@ unique(df3$suppress_data)
 ```
 
 
-```{r}
+```{r, include=FALSE}
 #Subset rows or columns, as needed
 df1_new <- df1 %>% select(-time_int, -report_date) %>%
   filter (new_infections != 0, new_recovered != 0) 
@@ -76,21 +76,21 @@ df2_new <- df2 %>% select (-dt_report) %>% filter(infected_current != 0)
 ```
 #Create new variables needed for analysis (minimum 2)
 
-```{r}
+```{r, include=FALSE}
 df1 <- df1_new %>%
   mutate(prevalence=cumulative_infected/population*100,
          incidence=new_infections/population*100)
 ```
 
 #recode age_category or sex in df2_new we use unique function
-```{r}
+```{r, include=FALSE}
 unique(df2_new$age_category)#to identify the diferent age ranges
 unique(df2_new$sex)
                                
 ```
 #mising values
 
-```{r}
+```{r, include=FALSE}
 # to identify where missing values are
 df3_new_missing <-df3%>% filter(!complete.cases(.))
 #removing NA for continous variables by droping NA
@@ -103,7 +103,7 @@ sum(is.na(df3_new_missing))#to check if any more missing in df
 ```
 ##Recode Male =1 and Female = 2
 
-```{r}
+```{r, include=FALSE}
 #df2_new$sex <- ifelse(df2_new$sex == "MALE", 1, 2)
 ```
 
@@ -130,7 +130,7 @@ prevalence
 incidence <- summary(df1$incidence)
 incidence
 ```
-```{r}
+```{r, include=FALSE}
 # Rename the columns to ease merging of the two datasets from CA and LA
 df2_1 <- df2_new %>%
   rename(
@@ -146,7 +146,7 @@ cumulative_severe = severe_cumulative
 )
 ```
 
-```{r}
+```{r, include=FALSE}
 library(lubridate)
 # Convert the dt_diagnosis column to the desired format
 df2_1$dt_diagnosis <- parse_date_time(df2_1$dt_diagnosis, orders = "dmy")#given that the date is in 03oct2022 format,

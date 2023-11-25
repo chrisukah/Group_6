@@ -11,7 +11,7 @@
 
 <meta name="author" content="Ngu Claudia Ngeha, Ukah Chrisntus Eweh" />
 
-<meta name="date" content="2023-11-24" />
+<meta name="date" content="2023-11-25" />
 
 <title>project Milestones 4</title>
 
@@ -352,7 +352,7 @@ display: none;
 
 <h1 class="title toc-ignore">project Milestones 4</h1>
 <h4 class="author">Ngu Claudia Ngeha, Ukah Chrisntus Eweh</h4>
-<h4 class="date">2023-11-24</h4>
+<h4 class="date">2023-11-25</h4>
 
 </div>
 
@@ -368,169 +368,10 @@ embedded R code chunks within the document. You can embed an R code
 chunk like this:</p>
 <p>#Recode Recode column names, values, or formats that are in
 discordant #(dates, etc)</p>
-<pre class="r"><code>df1 &lt;- df_sim_flu_ca %&gt;% rename(population=pop, age_category=age_cat) 
-
-df2 &lt;- df_sim_flu_lacounty %&gt;% rename_all(tolower) %&gt;%
-  rename(date_diagnosis=dt_dx)
-
-df3 &lt;- df_ca_vax_rates %&gt;% janitor::clean_names() %&gt;% 
-  rename(population=estimated_population)
-
-# for data cleaning first use str to have insight of data sets on variable #type
-str(df1)</code></pre>
-<pre><code>## spc_tbl_ [114,912 × 18] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
-##  $ county                : chr [1:114912] &quot;Alameda County&quot; &quot;Alameda County&quot; &quot;Alameda County&quot; &quot;Alameda County&quot; ...
-##  $ time_int              : num [1:114912] 202240 202241 202242 202243 202244 ...
-##  $ new_infections        : num [1:114912] 121 75 76 89 54 68 66 195 339 160 ...
-##  $ new_recovered         : num [1:114912] 0 119 77 75 88 55 67 66 195 334 ...
-##  $ count_susceptible     : num [1:114912] 46000 45925 45849 45760 45706 ...
-##  $ current_infected      : num [1:114912] 121 77 76 90 56 69 68 197 341 167 ...
-##  $ cumulative_infected   : num [1:114912] 121 196 272 361 415 ...
-##  $ cumulative_recovered  : num [1:114912] 0 119 196 271 359 ...
-##  $ new_unrecovered       : num [1:114912] 0 2 0 1 2 1 2 2 2 7 ...
-##  $ cumulative_unrecovered: num [1:114912] 0 2 2 3 5 6 8 10 12 19 ...
-##  $ new_severe            : num [1:114912] 0 0 0 0 0 1 0 1 0 0 ...
-##  $ cumulative_severe     : num [1:114912] 0 0 0 0 0 1 1 2 2 2 ...
-##  $ age_category          : chr [1:114912] &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; ...
-##  $ sex                   : chr [1:114912] &quot;FEMALE&quot; &quot;FEMALE&quot; &quot;FEMALE&quot; &quot;FEMALE&quot; ...
-##  $ race_ethnicity        : num [1:114912] 1 1 1 1 1 1 1 1 1 1 ...
-##  $ report_date           : Date[1:114912], format: &quot;2022-10-08&quot; &quot;2022-10-15&quot; ...
-##  $ dt_diagnosis          : Date[1:114912], format: &quot;2022-10-02&quot; &quot;2022-10-10&quot; ...
-##  $ population            : num [1:114912] 46000 46000 46000 46000 46000 46000 46000 46000 46000 46000 ...
-##  - attr(*, &quot;spec&quot;)=
-##   .. cols(
-##   ..   county = col_character(),
-##   ..   time_int = col_double(),
-##   ..   new_infections = col_double(),
-##   ..   new_recovered = col_double(),
-##   ..   count_susceptible = col_double(),
-##   ..   current_infected = col_double(),
-##   ..   cumulative_infected = col_double(),
-##   ..   cumulative_recovered = col_double(),
-##   ..   new_unrecovered = col_double(),
-##   ..   cumulative_unrecovered = col_double(),
-##   ..   new_severe = col_double(),
-##   ..   cumulative_severe = col_double(),
-##   ..   age_cat = col_character(),
-##   ..   sex = col_character(),
-##   ..   race_ethnicity = col_double(),
-##   ..   report_date = col_date(format = &quot;&quot;),
-##   ..   dt_diagnosis = col_date(format = &quot;&quot;),
-##   ..   pop = col_double()
-##   .. )
-##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
-<pre class="r"><code>str(df2)</code></pre>
-<pre><code>## spc_tbl_ [2,016 × 13] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
-##  $ date_diagnosis      : chr [1:2016] &quot;03OCT2022&quot; &quot;09OCT2022&quot; &quot;19OCT2022&quot; &quot;26OCT2022&quot; ...
-##  $ age_category        : chr [1:2016] &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; &quot;0-17&quot; ...
-##  $ sex                 : chr [1:2016] &quot;FEMALE&quot; &quot;FEMALE&quot; &quot;FEMALE&quot; &quot;FEMALE&quot; ...
-##  $ race_eth            : chr [1:2016] &quot;White, Non-Hispanic&quot; &quot;White, Non-Hispanic&quot; &quot;White, Non-Hispanic&quot; &quot;White, Non-Hispanic&quot; ...
-##  $ dt_report           : logi [1:2016] NA NA NA NA NA NA ...
-##  $ dx_new              : num [1:2016] 513 343 340 422 321 ...
-##  $ recovered_new       : num [1:2016] 0 508 341 341 421 ...
-##  $ infected_current    : num [1:2016] 513 348 347 428 328 ...
-##  $ infected_cumulative : num [1:2016] 513 856 1196 1618 1939 ...
-##  $ recovered_cumulative: num [1:2016] 0 508 849 1190 1611 ...
-##  $ susceptible         : num [1:2016] 215280 214937 214597 214175 213854 ...
-##  $ severe_new          : num [1:2016] 0 0 0 1 1 0 1 0 1 1 ...
-##  $ severe_cumulative   : num [1:2016] 0 0 0 1 2 2 3 3 4 5 ...
-##  - attr(*, &quot;spec&quot;)=
-##   .. cols(
-##   ..   DT_DX = col_character(),
-##   ..   AGE_CATEGORY = col_character(),
-##   ..   SEX = col_character(),
-##   ..   RACE_ETH = col_character(),
-##   ..   DT_REPORT = col_logical(),
-##   ..   DX_NEW = col_double(),
-##   ..   RECOVERED_NEW = col_double(),
-##   ..   INFECTED_CURRENT = col_double(),
-##   ..   INFECTED_CUMULATIVE = col_double(),
-##   ..   RECOVERED_CUMULATIVE = col_double(),
-##   ..   SUSCEPTIBLE = col_double(),
-##   ..   SEVERE_NEW = col_double(),
-##   ..   SEVERE_CUMULATIVE = col_double()
-##   .. )
-##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
-<pre class="r"><code>str(df3)</code></pre>
-<pre><code>## spc_tbl_ [13,533 × 13] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
-##  $ county_name                  : chr [1:13533] &quot;Alameda&quot; &quot;Alameda&quot; &quot;Alameda&quot; &quot;Alameda&quot; ...
-##  $ county_type                  : chr [1:13533] &quot;MIXED&quot; &quot;MIXED&quot; &quot;MIXED&quot; &quot;MIXED&quot; ...
-##  $ demographic_category         : chr [1:13533] &quot;Age Group&quot; &quot;Age Group&quot; &quot;Age Group&quot; &quot;Age Group&quot; ...
-##  $ demographic_value            : chr [1:13533] &quot;12-17&quot; &quot;12-17&quot; &quot;12-17&quot; &quot;12-17&quot; ...
-##  $ population                   : num [1:13533] 120945 120945 120945 120945 120945 ...
-##  $ dt_admin                     : Date[1:13533], format: &quot;2023-08-26&quot; &quot;2023-06-30&quot; ...
-##  $ total_partial_vaccinated     : num [1:13533] 6246 6145 6004 5921 5630 ...
-##  $ cumulative_fully_vaccinated  : num [1:13533] 102666 102665 102641 102510 102290 ...
-##  $ cumulative_at_least_o_ne_dose: num [1:13533] 108957 108855 108690 108472 107955 ...
-##  $ cumulative_unvaccinated      : num [1:13533] 11988 12090 12255 12473 12990 ...
-##  $ suppress_data                : logi [1:13533] FALSE FALSE FALSE FALSE FALSE FALSE ...
-##  $ cumulative_up_to_date_vax    : num [1:13533] 31450 30341 27885 23857 3955 ...
-##  $ quarter                      : Date[1:13533], format: &quot;2023-07-01&quot; &quot;2023-04-01&quot; ...
-##  - attr(*, &quot;spec&quot;)=
-##   .. cols(
-##   ..   `County Name` = col_character(),
-##   ..   `County Type` = col_character(),
-##   ..   `Demographic Category` = col_character(),
-##   ..   `Demographic Value` = col_character(),
-##   ..   `Estimated Population` = col_double(),
-##   ..   `Dt Admin` = col_date(format = &quot;&quot;),
-##   ..   `Total Partial Vaccinated` = col_double(),
-##   ..   `Cumulative Fully Vaccinated` = col_double(),
-##   ..   `Cumulative At Least ONe Dose` = col_double(),
-##   ..   `Cumulative Unvaccinated` = col_double(),
-##   ..   `Suppress Data` = col_logical(),
-##   ..   `Cumulative Up To Date Vax` = col_double(),
-##   ..   Quarter = col_date(format = &quot;&quot;)
-##   .. )
-##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
-<pre class="r"><code># Using dplyr
-# Remove duplicate rows (all columns)
-library(dplyr)
-df1 &lt;- df1 %&gt;% distinct()
-df2 &lt;- df2 %&gt;% distinct()
-df3 &lt;- df3 %&gt;% distinct()</code></pre>
-<pre class="r"><code>#unique() to identify misspellings in data sets to harmonise spellings
-unique(df1$sex)</code></pre>
-<pre><code>## [1] &quot;FEMALE&quot; &quot;MALE&quot;</code></pre>
-<pre class="r"><code>unique(df2$race_eth)</code></pre>
-<pre><code>## [1] &quot;White, Non-Hispanic&quot;                                   
-## [2] &quot;Black, Non-Hispanic&quot;                                   
-## [3] &quot;American Indian or Alaska Native, Non-Hispanic&quot;        
-## [4] &quot;Asian, Non-Hispanic&quot;                                   
-## [5] &quot;Native Hawaiian or Pacific Islander, Non-Hispanic&quot;     
-## [6] &quot;Multiracial (two or more of above races), Non-Hispanic&quot;
-## [7] &quot;Hispanic (any race)&quot;</code></pre>
-<pre class="r"><code>unique(df2$sex)</code></pre>
-<pre><code>## [1] &quot;FEMALE&quot; &quot;MALE&quot;</code></pre>
-<pre class="r"><code>unique(df3$suppress_data)</code></pre>
-<pre><code>## [1] FALSE  TRUE</code></pre>
-<pre class="r"><code>#Subset rows or columns, as needed
-df1_new &lt;- df1 %&gt;% select(-time_int, -report_date) %&gt;%
-  filter (new_infections != 0, new_recovered != 0) 
-df2_new &lt;- df2 %&gt;% select (-dt_report) %&gt;% filter(infected_current != 0)</code></pre>
 <p>#Create new variables needed for analysis (minimum 2)</p>
-<pre class="r"><code>df1 &lt;- df1_new %&gt;%
-  mutate(prevalence=cumulative_infected/population*100,
-         incidence=new_infections/population*100)</code></pre>
 <p>#recode age_category or sex in df2_new we use unique function</p>
-<pre class="r"><code>unique(df2_new$age_category)#to identify the diferent age ranges</code></pre>
-<pre><code>## [1] &quot;0-17&quot;  &quot;18-49&quot; &quot;50-64&quot; &quot;65+&quot;</code></pre>
-<pre class="r"><code>unique(df2_new$sex)</code></pre>
-<pre><code>## [1] &quot;FEMALE&quot; &quot;MALE&quot;</code></pre>
 <p>#mising values</p>
-<pre class="r"><code># to identify where missing values are
-df3_new_missing &lt;-df3%&gt;% filter(!complete.cases(.))
-#removing NA for continous variables by droping NA
-df3_new_missing &lt;-df3%&gt;%  
-  drop_na(population,cumulative_unvaccinated)
-sum(is.na(df1))</code></pre>
-<pre><code>## [1] 0</code></pre>
-<pre class="r"><code>sum(is.na(df2_new))</code></pre>
-<pre><code>## [1] 0</code></pre>
-<pre class="r"><code>sum(is.na(df3_new_missing))#to check if any more missing in df</code></pre>
-<pre><code>## [1] 0</code></pre>
 <p>##Recode Male =1 and Female = 2</p>
-<pre class="r"><code>#df2_new$sex &lt;- ifelse(df2_new$sex == &quot;MALE&quot;, 1, 2)</code></pre>
 <p>#summary statistics ussing the describe function from the psych
 package</p>
 <pre class="r"><code>library(psych)</code></pre>
@@ -684,24 +525,6 @@ prevalence</code></pre>
 incidence</code></pre>
 <pre><code>##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
 ##  0.00788  0.43814  1.61766  1.75632  2.65652 50.00000</code></pre>
-<pre class="r"><code># Rename the columns to ease merging of the two datasets from CA and LA
-df2_1 &lt;- df2_new %&gt;%
-  rename(
-dt_diagnosis = date_diagnosis,
-new_infections = dx_new,
-new_recovered = recovered_new,
-count_susceptible = susceptible,
-current_infected = infected_current,
-cumulative_infected = infected_cumulative,
-cumulative_recovered = recovered_cumulative,
-new_severe = severe_new,
-cumulative_severe = severe_cumulative
-)</code></pre>
-<pre class="r"><code>library(lubridate)
-# Convert the dt_diagnosis column to the desired format
-df2_1$dt_diagnosis &lt;- parse_date_time(df2_1$dt_diagnosis, orders = &quot;dmy&quot;)#given that the date is in 03oct2022 format,
-df2_new$dt_diagnosis &lt;- format(df2_1$dt_diagnosis, &quot;%Y-%m-%d&quot;)
-# Verify the updated date format</code></pre>
 <pre class="r"><code># hormonising code of df1 to match df2_1
 #df1$sex &lt;- ifelse(df1$sex == &quot;MALE&quot;, 1, 2)
 #q5, datasets from CA and LA are bound together to one dataset called join_df using left_join function
@@ -1226,20 +1049,20 @@ install.packages(&quot;gtsummary&quot;)</code></pre>
 <pre class="r"><code>library(gtsummary)
 #creating professional descriptive statistics for our joint data using summary function of gtsummary #package which will distinguish summary statistics for categorical data and #numerical  
 tbl_summary(new_final_joint_data)</code></pre>
-<div id="iorsscsjyv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#iorsscsjyv table {
+<div id="tpnbayxvpl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tpnbayxvpl table {
 font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#iorsscsjyv thead, #iorsscsjyv tbody, #iorsscsjyv tfoot, #iorsscsjyv tr, #iorsscsjyv td, #iorsscsjyv th {
+#tpnbayxvpl thead, #tpnbayxvpl tbody, #tpnbayxvpl tfoot, #tpnbayxvpl tr, #tpnbayxvpl td, #tpnbayxvpl th {
 border-style: none;
 }
-#iorsscsjyv p {
+#tpnbayxvpl p {
 margin: 0;
 padding: 0;
 }
-#iorsscsjyv .gt_table {
+#tpnbayxvpl .gt_table {
 display: table;
 border-collapse: collapse;
 line-height: normal;
@@ -1264,11 +1087,11 @@ border-left-style: none;
 border-left-width: 2px;
 border-left-color: #D3D3D3;
 }
-#iorsscsjyv .gt_caption {
+#tpnbayxvpl .gt_caption {
 padding-top: 4px;
 padding-bottom: 4px;
 }
-#iorsscsjyv .gt_title {
+#tpnbayxvpl .gt_title {
 color: #333333;
 font-size: 125%;
 font-weight: initial;
@@ -1279,7 +1102,7 @@ padding-right: 5px;
 border-bottom-color: #FFFFFF;
 border-bottom-width: 0;
 }
-#iorsscsjyv .gt_subtitle {
+#tpnbayxvpl .gt_subtitle {
 color: #333333;
 font-size: 85%;
 font-weight: initial;
@@ -1290,7 +1113,7 @@ padding-right: 5px;
 border-top-color: #FFFFFF;
 border-top-width: 0;
 }
-#iorsscsjyv .gt_heading {
+#tpnbayxvpl .gt_heading {
 background-color: #FFFFFF;
 text-align: center;
 border-bottom-color: #FFFFFF;
@@ -1301,12 +1124,12 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#iorsscsjyv .gt_bottom_border {
+#tpnbayxvpl .gt_bottom_border {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#iorsscsjyv .gt_col_headings {
+#tpnbayxvpl .gt_col_headings {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -1320,7 +1143,7 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#iorsscsjyv .gt_col_heading {
+#tpnbayxvpl .gt_col_heading {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -1339,7 +1162,7 @@ padding-left: 5px;
 padding-right: 5px;
 overflow-x: hidden;
 }
-#iorsscsjyv .gt_column_spanner_outer {
+#tpnbayxvpl .gt_column_spanner_outer {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -1350,13 +1173,13 @@ padding-bottom: 0;
 padding-left: 4px;
 padding-right: 4px;
 }
-#iorsscsjyv .gt_column_spanner_outer:first-child {
+#tpnbayxvpl .gt_column_spanner_outer:first-child {
 padding-left: 0;
 }
-#iorsscsjyv .gt_column_spanner_outer:last-child {
+#tpnbayxvpl .gt_column_spanner_outer:last-child {
 padding-right: 0;
 }
-#iorsscsjyv .gt_column_spanner {
+#tpnbayxvpl .gt_column_spanner {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
@@ -1367,10 +1190,10 @@ overflow-x: hidden;
 display: inline-block;
 width: 100%;
 }
-#iorsscsjyv .gt_spanner_row {
+#tpnbayxvpl .gt_spanner_row {
 border-bottom-style: hidden;
 }
-#iorsscsjyv .gt_group_heading {
+#tpnbayxvpl .gt_group_heading {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -1395,7 +1218,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 text-align: left;
 }
-#iorsscsjyv .gt_empty_group_heading {
+#tpnbayxvpl .gt_empty_group_heading {
 padding: 0.5px;
 color: #333333;
 background-color: #FFFFFF;
@@ -1409,13 +1232,13 @@ border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 vertical-align: middle;
 }
-#iorsscsjyv .gt_from_md > :first-child {
+#tpnbayxvpl .gt_from_md > :first-child {
 margin-top: 0;
 }
-#iorsscsjyv .gt_from_md > :last-child {
+#tpnbayxvpl .gt_from_md > :last-child {
 margin-bottom: 0;
 }
-#iorsscsjyv .gt_row {
+#tpnbayxvpl .gt_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -1433,7 +1256,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 overflow-x: hidden;
 }
-#iorsscsjyv .gt_stub {
+#tpnbayxvpl .gt_stub {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -1445,7 +1268,7 @@ border-right-color: #D3D3D3;
 padding-left: 5px;
 padding-right: 5px;
 }
-#iorsscsjyv .gt_stub_row_group {
+#tpnbayxvpl .gt_stub_row_group {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -1458,13 +1281,13 @@ padding-left: 5px;
 padding-right: 5px;
 vertical-align: top;
 }
-#iorsscsjyv .gt_row_group_first td {
+#tpnbayxvpl .gt_row_group_first td {
 border-top-width: 2px;
 }
-#iorsscsjyv .gt_row_group_first th {
+#tpnbayxvpl .gt_row_group_first th {
 border-top-width: 2px;
 }
-#iorsscsjyv .gt_summary_row {
+#tpnbayxvpl .gt_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -1473,14 +1296,14 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#iorsscsjyv .gt_first_summary_row {
+#tpnbayxvpl .gt_first_summary_row {
 border-top-style: solid;
 border-top-color: #D3D3D3;
 }
-#iorsscsjyv .gt_first_summary_row.thick {
+#tpnbayxvpl .gt_first_summary_row.thick {
 border-top-width: 2px;
 }
-#iorsscsjyv .gt_last_summary_row {
+#tpnbayxvpl .gt_last_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -1489,7 +1312,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#iorsscsjyv .gt_grand_summary_row {
+#tpnbayxvpl .gt_grand_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -1498,7 +1321,7 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#iorsscsjyv .gt_first_grand_summary_row {
+#tpnbayxvpl .gt_first_grand_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -1507,7 +1330,7 @@ border-top-style: double;
 border-top-width: 6px;
 border-top-color: #D3D3D3;
 }
-#iorsscsjyv .gt_last_grand_summary_row_top {
+#tpnbayxvpl .gt_last_grand_summary_row_top {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -1516,10 +1339,10 @@ border-bottom-style: double;
 border-bottom-width: 6px;
 border-bottom-color: #D3D3D3;
 }
-#iorsscsjyv .gt_striped {
+#tpnbayxvpl .gt_striped {
 background-color: rgba(128, 128, 128, 0.05);
 }
-#iorsscsjyv .gt_table_body {
+#tpnbayxvpl .gt_table_body {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -1527,7 +1350,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#iorsscsjyv .gt_footnotes {
+#tpnbayxvpl .gt_footnotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -1540,7 +1363,7 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#iorsscsjyv .gt_footnote {
+#tpnbayxvpl .gt_footnote {
 margin: 0px;
 font-size: 90%;
 padding-top: 4px;
@@ -1548,7 +1371,7 @@ padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#iorsscsjyv .gt_sourcenotes {
+#tpnbayxvpl .gt_sourcenotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -1561,57 +1384,57 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#iorsscsjyv .gt_sourcenote {
+#tpnbayxvpl .gt_sourcenote {
 font-size: 90%;
 padding-top: 4px;
 padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#iorsscsjyv .gt_left {
+#tpnbayxvpl .gt_left {
 text-align: left;
 }
-#iorsscsjyv .gt_center {
+#tpnbayxvpl .gt_center {
 text-align: center;
 }
-#iorsscsjyv .gt_right {
+#tpnbayxvpl .gt_right {
 text-align: right;
 font-variant-numeric: tabular-nums;
 }
-#iorsscsjyv .gt_font_normal {
+#tpnbayxvpl .gt_font_normal {
 font-weight: normal;
 }
-#iorsscsjyv .gt_font_bold {
+#tpnbayxvpl .gt_font_bold {
 font-weight: bold;
 }
-#iorsscsjyv .gt_font_italic {
+#tpnbayxvpl .gt_font_italic {
 font-style: italic;
 }
-#iorsscsjyv .gt_super {
+#tpnbayxvpl .gt_super {
 font-size: 65%;
 }
-#iorsscsjyv .gt_footnote_marks {
+#tpnbayxvpl .gt_footnote_marks {
 font-size: 75%;
 vertical-align: 0.4em;
 position: initial;
 }
-#iorsscsjyv .gt_asterisk {
+#tpnbayxvpl .gt_asterisk {
 font-size: 100%;
 vertical-align: 0;
 }
-#iorsscsjyv .gt_indent_1 {
+#tpnbayxvpl .gt_indent_1 {
 text-indent: 5px;
 }
-#iorsscsjyv .gt_indent_2 {
+#tpnbayxvpl .gt_indent_2 {
 text-indent: 10px;
 }
-#iorsscsjyv .gt_indent_3 {
+#tpnbayxvpl .gt_indent_3 {
 text-indent: 15px;
 }
-#iorsscsjyv .gt_indent_4 {
+#tpnbayxvpl .gt_indent_4 {
 text-indent: 20px;
 }
-#iorsscsjyv .gt_indent_5 {
+#tpnbayxvpl .gt_indent_5 {
 text-indent: 25px;
 }
 </style>
