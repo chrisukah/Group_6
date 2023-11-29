@@ -48,6 +48,8 @@ str(df2)
 str(df3)
 
 ```
+
+
 ```{r , include=FALSE,warning=FALSE, message=FALSE}
 # Using dplyr
 # Remove duplicate rows (all columns)
@@ -160,6 +162,19 @@ df2_new$dt_diagnosis <- format(df2_1$dt_diagnosis, "%Y-%m-%d")
 joint_df <- left_join(df1, df2_1, by = join_by(new_infections, new_recovered, count_susceptible, current_infected, cumulative_infected, cumulative_recovered, new_severe, cumulative_severe, age_category, sex, dt_diagnosis))
 
 ```
+
+```{r}
+#New combined dataset for ca_la
+ca_vax1 <- df_ca_vax_rates %>% 
+  rename("county" = "County Name", "age_category" = "Demographic Value") %>%
+  filter(age_category == "Age Group") %>% 
+  na.omit()
+
+final_flu <- bind_rows(df1, df2_1)
+
+join_flu_vax <- left_join(final_flu, ca_vax1, by = c("county", "age_category"))
+```
+
 
 ```{r}
 #data aggregation to have descriptive statistics by county
