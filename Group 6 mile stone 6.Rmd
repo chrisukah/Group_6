@@ -283,8 +283,44 @@ df3_new_missing <- df3_new_missing %>%
   )
 class(df3_new_missing$quarter)
 df3_new_missing <-  df3_new_missing %>% select(-mo_dt_vax,-day_dt_vax)
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+library(gtsummary)
+#summary statistics of joint California flu dataset (final_flu)
+ tbl_summary_1 <- final_flu %>%
+  select(sex, new_infections, prevalence, new_recovered, new_severe, current_infected, yr_dt_dx, new_recovered,count_susceptible, cumulative_severe, cumulative_recovered, new_unrecovered, age_category) %>% tbl_summary(by=age_category, statistic = list(
+    all_continuous() ~ "{mean} ({sd})",
+    all_categorical() ~ "{n} / {N} ({p}%)"),
+  )
+ tbl_summary_1
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+# summary statistics for vaccination dataset (df3_new_missing)
+library(formattable)
+subset_df3_new_missing <- df3_new_missing %>% select(age_category, sex, cumulative_fully_vaccinated, cumulative_up_to_date_vax, yr_dt_vax)
+
+formattable(head(subset_df3_new_missing, 10), list(
+  col.names = gsub("_", " ", names(subset_df3_new_missing)),
+  caption = "Portion of Summary Statistic of simulated data set from California and vaccination rates of COVID 19"
+))
+describe(subset_df3_new_missing)
+  
+```
+
+
+```{r include=FALSE}
+library(dplyr)
+#kable(subset_df3_new_missing, booktabs = T, caption = "California quarterly COVID vaccination #rates by year, age group and sex in different counties") %>% group_rows("0-17years", 1, 10)
+  #footnote(general = "California  simulated morbidity flu data",
+  #general_title = "Data Source") %>% 
+  #kable_styling(full_width = T)
 #to join all 3 data sets
 #join_flu_vax <- left_join(final_flu, df3_new_missing, by = c("county", "age_category"))
+#join_flu_vax <- left_join(final_flu, df3_new_missing, by = "age_category")
 
 ```
 
