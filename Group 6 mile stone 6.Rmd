@@ -1,0 +1,241 @@
+---
+title: "Final Project:Milestones 6, Flu outbreak (simulated) and vaccine uptake in California"
+author: "Ngu Claudia Ngeha, Ukah Chrisntus Eweh"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+---
+```{r, include=FALSE}
+library(readr)
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(data.table)
+library(knitr)
+library(stringr)
+library(kableExtra)
+library(DT)
+library(png)
+library(ggrepel)
+```
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, import statement, tidy_source(), include = FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(tidyverse)
+library(lubridate)
+#Importing  morbidity data sets for state of California provided in the PHW251 Project Data #github repo
+
+df_ca_vax_rates <- read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/ca_vax_rates_quarter.csv")
+
+df_sim_flu_ca <-read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/sim_flu_CA.csv")
+
+df_sim_flu_lacounty <-read_csv("https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/scenario_1/sim_flu_LACounty_pop.csv")
+
+```
+
+
+```{r , include=FALSE,warning=FALSE, message=FALSE}
+#Recode column names, values, or formats that are in discordant #(dates, etc)
+df1 <- df_sim_flu_ca %>% rename(population=pop, age_category=age_cat) 
+
+df2 <- df_sim_flu_lacounty %>% rename_all(tolower) %>%
+  rename(date_diagnosis=dt_dx)
+
+df3 <- df_ca_vax_rates %>% janitor::clean_names() %>% 
+  rename(population=estimated_population)
+
+# for data cleaning first use str to have insight of data sets on variable #type
+str(df1)
+str(df2)
+str(df3)
+
+```
+
+
+```{r , include=FALSE,warning=FALSE, message=FALSE}
+# Using dplyr
+# Remove duplicate rows (all columns)
+library(dplyr)
+df1 <- df1 %>% distinct()
+df2 <- df2 %>% distinct()
+df3 <- df3 %>% distinct()
+```
+
+
+```{r , include=FALSE,warning=FALSE, message=FALSE}
+#unique() to identify misspellings in data sets to harmonise spellings
+unique(df1$sex)
+unique(df2$race_eth)
+unique(df2$sex)
+unique(df3$suppress_data)
+```
+
+
+```{r , include=FALSE,warning=FALSE, message=FALSE}
+#Subset rows or columns, as needed
+df1_new <- df1 %>% select(-time_int, -report_date) %>%
+  filter (new_infections != 0, new_recovered != 0) 
+df2_new <- df2 %>% select (-dt_report) %>% filter(infected_current != 0)
+
+```
+
+
+```{r , include=FALSE,warning=FALSE, message=FALSE}
+#Create new variables needed for analysis (minimum 2)
+df1 <- df1_new %>%
+  mutate(prevalence=cumulative_infected/population*100,
+         incidence=new_infections/population*100)
+
+df2_new <- df2_new %>%
+  mutate(prevalence=infected_cumulative/population*100,
+         incidence=dx_new/population*100)
+
+```
+
+
+```{r , include=FALSE,warning=FALSE, message=FALSE}
+#re code age_category or sex in df2_new we use unique function
+unique(df2_new$age_category)#to identify the diferent age ranges
+unique(df2_new$sex)
+                               
+```
+
+```{r , include=FALSE,warning=FALSE, message=FALSE}
+#missing values
+# to identify where missing values are
+df3_new_missing <-df3%>% filter(!complete.cases(.))
+#removing NA for continous variables by droping NA
+df3_new_missing <-df3%>%  
+  drop_na(population,cumulative_unvaccinated)
+sum(is.na(df1))
+sum(is.na(df2_new))
+sum(is.na(df3_new_missing))#to check if any more missing in df
+
+```
+
+```{r , include=FALSE,warning=FALSE, message=FALSE}
+##Re code Male =1 and Female = 2
+#df2_new$sex <- ifelse(df2_new$sex == "MALE", 1, 2)
+```
+
+```{r , include=FALSE,warning=FALSE, message=FALSE} 
+#summary statistics using the describe function from the psych package
+library(psych)
+describe(df1)
+describe(df2_new)
+describe(df3_new_missing)
+```
+
+```{r , include=FALSE,warning=FALSE, message=FALSE} 
+#Summary statistics for individual columns in the dataset
+new_infection <- summary(df1$new_infections)
+new_infection
+new_recover <- summary(df1$new_recovered)
+new_recover
+count_susceptible <- summary(df1$count_susceptible)
+count_susceptible
+population <- summary(df1$population)
+population
+prevalence <- summary(df1$prevalence)
+prevalence
+incidence <- summary(df1$incidence)
+incidence
+```
+
+```{r, include=FALSE}
+# Rename the columns to ease merging of the two datasets from CA and LA
+df2_1 <- df2_new %>%
+  rename(
+dt_diagnosis = date_diagnosis,
+new_infections = dx_new,
+new_recovered = recovered_new,
+count_susceptible = susceptible,
+current_infected = infected_current,
+cumulative_infected = infected_cumulative,
+cumulative_recovered = recovered_cumulative,
+new_severe = severe_new,
+cumulative_severe = severe_cumulative
+)
+
+#adding a demographic variable (county) to df2_1 (la dataset)
+
+df2_1 <- df2_1 %>% mutate(county = "Los Angeles County")
+```
+
+
+```{r, include=FALSE}
+library(lubridate)
+# Convert the dt_diagnosis column to the desired format
+df2_1$dt_diagnosis <- parse_date_time(df2_1$dt_diagnosis, orders = "dmy")#given that the date is in 03oct2022 format,
+df2_new$dt_diagnosis <- format(df2_1$dt_diagnosis, "%Y-%m-%d")
+# Verify the updated date format
+```
+
+
+```{r, include=FALSE}
+#remove race_ethnicity from both la and ca data
+df1 <- df1 %>% select(-race_ethnicity)
+df2_1 <- df2_1 %>% select(-race_eth)
+```
+
+```{r, include=FALSE}
+#q5, data sets from CA and LA are bound together to one dataset
+#New combined dataset for ca_la
+final_flu <- bind_rows(df1, df2_1)
+#splitting up the dt_diagnosis column to get year into one variable
+final_flu$dt_diagnosis <- as.Date(final_flu$dt_diagnosis, format = "%d%b%Y")
+
+final_flu <- final_flu %>% 
+  mutate(
+    yr_dt_dx = format(dt_diagnosis, "%Y"),
+    mo_dt_dx = format(dt_diagnosis, "%m"),
+    day_dt_dt = format(dt_diagnosis, "%d")
+  )
+class(final_flu$dt_diagnosis)
+```
+
+
+```{r cleaning vax dataset df3 new missing, include=FALSE}
+df3_new_missing <- df3_new_missing %>% 
+  pivot_wider(names_from = demographic_category,
+              values_from = demographic_value, values_fn = list)
+#renaming new columns
+df3_new_missing <- df3_new_missing %>% 
+  rename(sex = Gender,
+         age_category = "Age Group",
+         race_eth = "Race/Ethnicity")
+#remove some columns from vax dataset
+df3_new_missing <- df3_new_missing %>%
+  select(-county_type, -dt_admin, -suppress_data, -race_eth)
+#remove mssing data with na.omit function, verify if missing data still exists with sum(is.na)
+na.omit(df3_new_missing)
+sum(is.na(df3_new_missing))
+#replacing NULL in dataset with NA in columns of interest
+df3_new_missing$sex[df3_new_missing$sex == "NULL"] <- NA
+df3_new_missing$age_category[df3_new_missing$age_category == "NULL"] <- NA
+#to view age categories in df3_new missing("Under 5","5-11","12-17","18-49","50-64","65+")
+unique(df3_new_missing$age_category)
+#view age group of final_flu dataset ( "0-17"  "18-49" "50-64" "65+" )
+unique(final_flu$age_category)
+
+# recode male and rename in df3_missing (vax) dataset to be harmonise with final_flu
+df3_new_missing$sex <- ifelse(df3_new_missing$sex == "male", "MALE", "FEMALE")
+#recode df3_missing(vax dataset) age group to be harmonised with flu dataset agegroup
+df3_new_missing$age_category <- ifelse(df3_new_missing$age_category %in% c("under 5", "5-11", "12-17"), "0-17", 
+                                       ifelse(df3_new_missing$age_category %in% c("18-49", "50-64", "65+"), df3_new_missing$age_category, NA))
+
+#to join all 3 data sets
+#join_flu_vax <- left_join(final_flu, df3_new_missing, by = c("county", "age_category"))
+
+```
+
