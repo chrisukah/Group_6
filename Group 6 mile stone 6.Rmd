@@ -19,6 +19,35 @@ library(png)
 library(ggrepel)
 ```
 
+## Problem Statement
+
+The outbreak of monkeypox in spring/summer of 2022 was cause for alarm for public health professionals around the globe. The virus is transmitted through direct contact with monkeypox rash and scabs from a person with monkeypox, generally through close, skin-to-skin contact ("How it spreads: Monkeypox", 2022). Historically this virus has not been reported widely outside of certain countries in Africa. However, in 2022 cases of monkeypox were reported around the world, including Europe. The purpose of this report is to provide an update on monkeypox prevalence in European countries based on reported cases from May to August 2022. Specifically, this report is focused on regional difference in risk based on the factors of age and sex.
+
+We wanted to know if monkeypox risk differed across the four subregions of Europe (North, South, East, West), and if the percentage of male population aged 15-29 correlates with an increased risk of monkeypox. We chose to focus on these demographic factors due to the large number of cases that have occurred in men (Gilchrist, 2022). Based on the press coverage of monkeypox, it is known that the outbreak has predominantly affected men who have sex with men in many countries, including those in Europe (Martinez et al, 2022), and as a result we hypothesize that countries with a larger young male population could see higher rates of monkeypox.
+
+**Question**: How does risk of monkeypox infection differ by region and are any differences correlated to demographic factors of region including age and sex?
+
+-   Null Hypothesis 1: Risk of monkeypox is the same across regions.
+
+-   Alternative Hypothesis 1: Risk of monkeypox differs by regions.
+
+-   Null Hypothesis 2: Risk by country is not correlated with percentage of males age 15-29 within a given country.
+
+-   Alternative Hypothesis 2: Risk by country is correlated with percentage of males age 15-29 within a given country.
+
+## Methods
+
+Sources, date ranges and relevance to project for each of our four data sets are as follows: 1) eu_mpx_cases.csv comes from the European Centre for Disease Prevention and Control, covers May - August 2022 and supplies case counts by EU country; 2) euro_pop_denominators.csv comes from the statistical office of the European Union (EuroStat), covers 2011 - 2021 and contains populations by EU country, which is necessary to calculate rate; 3) euro_census_stats.csv also comes from Eurostat, covers 2011 and features detailed demographic information for EU countries, which will help us analyze infection distributions by age and sex; and 4) The four European sub-regions we are using in the world_country_regions.csv come from the International Organization for Standardization 3166, whose fifth and most recent edition was published between 1997 and 1999, and supplies the region and sub-region for all countries, which will help us determine monkeypox regional distribution in the EU.
+
+We cleaned data sets by changing all variables to lowercase, recoded two country code variables (Cyprus and UK), checked for NAs, and renamed variables to eliminate spaces. We also discovered missing data for nine countries in the pop_denom data set and were given an updated data set that included this data for our final visualizations and analysis.
+
+We created nine new variables (month, monthly_cases, total_risk, monthly_risk, country_code, strata_pop, total_pop, perc_pop, and strata_pop) in order to join data sets and for visualizations and analysis. See data dictionary for detailed descriptions.
+
+Analytic methods: We joined variables in the euro_mpx and pop_denom datasets to determine risk by country. We categorized countries into four regions within Europe and then joined the country_regions data set to aggregate risk by region. We also looked at the association between country risk and the percentage of the country population that is male and aged 15-29. This was an ecological analysis because we did not have demographic data for cases, only counts per day per country.
+
+## Results
+
+The percentage of the total population that are men aged 15 - 29 varies slightly by European region (see Chart 1). Most of the countries in Northern Europe had percentages of young men above the median value of 9.6%, while most countries in Western Europe had percentages of young men below the median value of 9.6%. Table 1 shows us that the monthly incidence of monkeypox per 100,000 people increases between May and July 2022 (peaking during the month of July) and begins to decrease in August 2022. Incidence is highest in the southern region of Europe in July 2022( 0.09/100,000) followed by western Europe in July 2022 (0.07/100,000). Based on the scatterplot in Chart 2, there does not appear to be a strong correlation between the percentage of men aged 15-29 and the country's total risk of monkeypox per 100,000 people. The range of % of men in this age category is 7.86%-11.85%, and the range of monkeypox risk by country is 0.06-13.27.
 
 
 ```{r setup, include=FALSE}
@@ -202,6 +231,7 @@ final_flu <- final_flu %>%
     day_dt_dt = format(dt_diagnosis, "%d")
   )
 class(final_flu$dt_diagnosis)
+final_flu <- final_flu %>% select(-mo_dt_dx,-day_dt_dt)
 ```
 
 
@@ -233,7 +263,26 @@ df3_new_missing$sex <- ifelse(df3_new_missing$sex == "male", "MALE", "FEMALE")
 #recode df3_missing(vax dataset) age group to be harmonised with flu dataset agegroup
 df3_new_missing$age_category <- ifelse(df3_new_missing$age_category %in% c("under 5", "5-11", "12-17"), "0-17", 
                                        ifelse(df3_new_missing$age_category %in% c("18-49", "50-64", "65+"), df3_new_missing$age_category, NA))
+sum(is.na(final_flu))
+sum(is.na(df3_new_missing))
+#rename county_name in df3_new dataset
+df3_new_missing <- df3_new_missing %>% rename(county = county_name)
+df3_new_missing$age_category <- unlist(df3_new_missing$age_category) # to convert age_category
+#from list to character
+#splitting up the dt_diagnosis column to get year into one variable in df3 dataset
+df3_new_missing$quarter <- as.Date(df3_new_missing$quarter, format = "%d%b%Y")
+```
 
+
+```{r, include=FALSE}
+df3_new_missing <- df3_new_missing %>% 
+  mutate(
+    yr_dt_vax = format(quarter, "%Y"),
+    mo_dt_vax = format(quarter, "%m"),
+    day_dt_vax = format(quarter, "%d")
+  )
+class(df3_new_missing$quarter)
+df3_new_missing <-  df3_new_missing %>% select(-mo_dt_vax,-day_dt_vax)
 #to join all 3 data sets
 #join_flu_vax <- left_join(final_flu, df3_new_missing, by = c("county", "age_category"))
 
