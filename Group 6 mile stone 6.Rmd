@@ -286,6 +286,10 @@ df3_new_missing <-  df3_new_missing %>% select(-mo_dt_vax,-day_dt_vax) %>%
 ```
 
 Table 1: Summary statistics of California flu showing demographic variables and severity for 2022 and 2023
+
+From Table 1, the proportion of females and males in the different age groups was almost the same. The proportion of men exceeded that of women in the age group 18-49 by 1% and the proportion of females within the age group 65+ exceeded that of men by 1%. The highest number of new infections were experienced within the age group 18-49. The recovery rate was highest within the age group 18-49. The severity of the virus was highest within the age groups 50-64 and 65+. 
+Vaccination rate showed to have increased in 2023 as compared to 2022 within all the different age groups.
+
 ```{r, echo=FALSE, message=FALSE}
 library(gtsummary)
 #filtering rows out of selected columns (county, age_category, dt_diagnosis), population at risk #0-17 years
@@ -335,3 +339,63 @@ ggplot(final_flu, aes(x= county, y= incidence)) +
 
 ```
 
+```{r echo=FALSE, message=FALSE}
+#Avoid overcrowding of the virsualization of county by incidence
+# Create two dataframes for counties starting with letters A-M and N-Z
+counties_AtoM <- final_flu %>% filter(substr(county, 1, 1) %in% LETTERS[1:13])
+counties_NtoZ <- final_flu %>% filter(substr(county, 1, 1) %in% LETTERS[14:26])
+
+# Visualization for counties A-M
+ggplot(counties_AtoM, aes(x = county, y = incidence)) +
+  geom_bar(stat = "identity", color = "orange", fill = "orange") +
+  labs(x = "County", y = "incidence",
+       title = "Flu incidence in paediatrics age 0-17 years for California counties (A-M), 2022-2023") +
+  theme(axis.text.x = element_text(size = 6, angle = 45))
+```
+
+From the figure above, flu incidence was lowest in Alameda County which reported about 5000 new cases and was highest in Colusa County, Del Norte County, Inyo County, Lassen County, and Monterey County which reported about 24000 new cases per total population.
+
+```{r echo=FALSE, message=FALSE}
+# Visualization for counties N-Z
+ggplot(counties_NtoZ, aes(x = county, y = incidence)) +
+  geom_bar(stat = "identity", color = "darkgreen", fill = "darkgreen") +
+  labs(x = "County", y = "incidence",
+       title = "Flu incidence in paediatrics age 0-17 years for California counties (N-Z), 2022-2023") +
+  theme(axis.text.x = element_text(size = 6, angle = 45))
+```
+```{r echo=FALSE, message=FALSE}
+# Visualization for counties A-M with different fill colors for each county
+ggplot(counties_AtoM, aes(x = county, y = incidence, fill = county)) +
+  geom_bar(stat = "identity", color = "blue") +
+  labs(x = "County", y = "incidence",
+       title = "Flu incidence in paediatrics age 0-17 years for California counties (A-M), 2022-2023") +
+  theme(axis.text.x = element_text(size = 6, angle = 45)) +
+  scale_fill_manual(values = rainbow(nrow(counties_AtoM)))
+
+# Visualization for counties N-Z with different fill colors for each county
+ggplot(counties_NtoZ, aes(x = county, y = incidence, fill = county)) +
+  geom_bar(stat = "identity", color = "blue") +
+  labs(x = "County", y = "incidence",
+       title = "Flu incidence in paediatrics age 0-17 years for California counties (N-Z), 2022-2023") +
+  theme(axis.text.x = element_text(size = 6, angle = 45)) +
+  scale_fill_manual(values = rainbow(nrow(counties_NtoZ)))
+```
+
+
+
+
+
+
+Discussion
+
+
+The new infection rate of the virus was highest in the age group 18-49 years. This could be due to the fact that, this age group is the most active age group. The mobility of the persons might have exposed more to infection as compared to their less active younger and older age group counterparts. The severity of the virus was shown to be more in the older age groups. This could be due to the fact that, age group usually comes with increase cormodities from different non communicable diseases which have been shown to be positively associated to severity of the virus.
+In the obtained data from the Bay Area Counties in pediatric population during the observed period (Oct-2022 to Mar-2023), there was an increase of 3.4 times in the flu cases despite the same proportion of coverage of COVID-19 vaccination in the Bay Area with no significant differences in morbidity.
+
+Our analysis revealed no relation between COVID-19 vaccination and flu cases in the Bay Area counties in pediatric population. Despite the exponential increase of cases between the Q4 of 2022 to the Q1 of 2023, the incidence of severe cases was similar.
+Our findings demonstrates the importance of implementing intensified outreach efforts for flu vaccination in the pediatric population of the Bay Area, with a strategic emphasis on targeted interventions to enhance coverage and mitigate the impact of influenza in this demographic.
+
+Conclusion
+
+
+A coordinated effort in required from multidisciplinary sectors to ensure the virus incidence is greatly reduced and subsequently eradicated.
