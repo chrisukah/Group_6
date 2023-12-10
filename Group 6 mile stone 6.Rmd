@@ -19,36 +19,34 @@ library(png)
 library(ggrepel)
 ```
 
-## Problem Statement
+## Research Question
 
-The outbreak of monkeypox in spring/summer of 2022 was cause for alarm for public health professionals around the globe. The virus is transmitted through direct contact with monkeypox rash and scabs from a person with monkeypox, generally through close, skin-to-skin contact ("How it spreads: Monkeypox", 2022). Historically this virus has not been reported widely outside of certain countries in Africa. However, in 2022 cases of monkeypox were reported around the world, including Europe. The purpose of this report is to provide an update on monkeypox prevalence in European countries based on reported cases from May to August 2022. Specifically, this report is focused on regional difference in risk based on the factors of age and sex.
+“Is there any correlation between COVID-19 vaccination rates on flu rates and/or severity ?”
 
-We wanted to know if monkeypox risk differed across the four subregions of Europe (North, South, East, West), and if the percentage of male population aged 15-29 correlates with an increased risk of monkeypox. We chose to focus on these demographic factors due to the large number of cases that have occurred in men (Gilchrist, 2022). Based on the press coverage of monkeypox, it is known that the outbreak has predominantly affected men who have sex with men in many countries, including those in Europe (Martinez et al, 2022), and as a result we hypothesize that countries with a larger young male population could see higher rates of monkeypox.
+## Introduction & Problem Statement
 
-**Question**: How does risk of monkeypox infection differ by region and are any differences correlated to demographic factors of region including age and sex?
+Seasonal influenza (the flu) is an acute respiratory infection caused by influenza viruses. There are around a billion cases of seasonal influenza annually, including 3–5 million cases of severe illness.It causes 290 000 to 650 000 respiratory deaths annually(WHO. 2023).It is common in all parts of the world. Most people recover without treatment. Hence it is of public health importance.Influenza spreads easily between people when they cough or sneeze. Vaccination is the best way to prevent the disease.Symptoms of influenza include acute onset of fever, cough, sore throat, body aches and fatigue.Influenza virus, commonly known as “Flu virus” is highly contagious via droplet transmission, and it belongs to the Orthomyxoviridae family. The two main influenza viruses that affect humans are A and B, where Influenza A viruses emerge seasonally from zoonotic reservoirs . There have been five known pandemics due to influenza, where the most recent one was in 2009 and 200,000 deaths were attributed to influenza. The population at higher risk of morbidity and mortality are the extreme ages of life, the pediatric population and the elderly during the flu season (that vary geographically) (Peteranderl et al., 2016). In the US, the estimated incidence of flu among seasons prior to COVID-19 pandemic was from 3% - 11% in all ages, and 9.3% for the pediatric population 0-17 years old, (okars et al., 2017). The statistical estimate of influenza incidence in the US among all ages ranged from 3.0%–11.3% among seasons (Tokars et al., 2018).Flu vaccination coverage among the pediatric population in the US during 2019-2022 coverage was around 62%  (CDC, 2023). On the other hand, COVID-19 vaccination coverage was strengthened in the pediatric population during 2022 reaching a national wide coverage of 50% approximately (Nguyen et al., 2023). While flu cases were increasing as well as COVID-19 vaccination coverage, we intend to determine if there is any correlation between SARS-Cov2 vaccination on flu incidence and severity in the pediatric population of the Bay Area during 2022 and 2023 flu season.
 
--   Null Hypothesis 1: Risk of monkeypox is the same across regions.
-
--   Alternative Hypothesis 1: Risk of monkeypox differs by regions.
-
--   Null Hypothesis 2: Risk by country is not correlated with percentage of males age 15-29 within a given country.
-
--   Alternative Hypothesis 2: Risk by country is correlated with percentage of males age 15-29 within a given country.
+we intend to analyze if the efforts invested in COVID-19 vaccination are reflected in flu incidence rates and flu severity incidence, investigating whether increased COVID-19 vaccination coverage correlates with a reduction in flu cases and severity in the pediatric population in the Bay Area. If our analysis reveals a lack of correlation, particularly within the pediatric population of Bay Area counties, it emphasizes the necessity for targeted interventions and more outreach efforts should be done to encourage flu vaccinations. 
 
 ## Methods
+Data Sources, for each data sets are : dataset one (sim_flu_CA.csv) contains weekly data about flu cases and case severity by demographic categories and geographic categories for California counties (except for Los Angeles county) of flu season for California counties for 2022 and -2023 ; dataset two (sim_flu_LACounty.csv) contains population data by similar demographic and geographic categories for Los Angeles county; dataset three (ca_vax_rates_quarter.csv) contains quarterly COVID vaccination rates by county and age category from 2020 to 2023.
 
-Sources, date ranges and relevance to project for each of our four data sets are as follows: 1) eu_mpx_cases.csv comes from the European Centre for Disease Prevention and Control, covers May - August 2022 and supplies case counts by EU country; 2) euro_pop_denominators.csv comes from the statistical office of the European Union (EuroStat), covers 2011 - 2021 and contains populations by EU country, which is necessary to calculate rate; 3) euro_census_stats.csv also comes from Eurostat, covers 2011 and features detailed demographic information for EU countries, which will help us analyze infection distributions by age and sex; and 4) The four European sub-regions we are using in the world_country_regions.csv come from the International Organization for Standardization 3166, whose fifth and most recent edition was published between 1997 and 1999, and supplies the region and sub-region for all countries, which will help us determine monkeypox regional distribution in the EU.
+Once we downloaded our the data sets, we cleaned the data sets by renaming the sim_flu_LA_county_pop to match the sim_flu_CA names, we then included a  county column in LA dataset in preparation to be added to row of sim_flu_CA and renamed columns to clean the column headers to be all lowercase with no spaces. We continued cleaning for sim_flu_CA and sim_flu_LACounty_pop by selecting matching columns for sim_flu_CA & sim_flu_LACounty_pop. Followed by re-coding, checking for NAs and tidying for matching California data sets. We updated the Date column of sim_flu_LACounty_pop to match the date value of sim_flu_CA. 
 
-We cleaned data sets by changing all variables to lowercase, recoded two country code variables (Cyprus and UK), checked for NAs, and renamed variables to eliminate spaces. We also discovered missing data for nine countries in the pop_denom data set and were given an updated data set that included this data for our final visualizations and analysis.
+We then combined California data sets using cbind function, and chose the demographic strata of interest for final_flu by filtering rows out of selected columns (county, age_cat, dt_diagnosis), population at risk 0-17 years, pediatric population selection of dates prior to flu season and right after flu season 2022- 2023. After reviewing the dates from both data frames, dates of vaccination were selected according to the flu vaccine release, September 2022. Followed by tidying COVID-19 vaccination rates data of interest by pivoting data from ca_vax_rates_quarter to extract the age category. At this point all NULL values were converted to NAs. Defined our at risk population to be 0-17 under one category and removed NAs.
 
-We created nine new variables (month, monthly_cases, total_risk, monthly_risk, country_code, strata_pop, total_pop, perc_pop, and strata_pop) in order to join data sets and for visualizations and analysis. See data dictionary for detailed descriptions.
+Vaccination data was grouped and filtered by county, year, sex and age_category, and calculated sum of each numeric category and calculated proportion of vaccinated population per county per 100 population.The flu data set was further cleaned to new data frame with the following variables:county, date_diagnosis, age_category, sex, race_ethnicity, new_severe, infected_current, new_recovered, total population. New variables; incidence and prevalence of infection were created. Vaccination period and flu incidence data sets were aligned and dates were converted into day, month, year . At this point incidence for pediatric population and severity of incidence was calculated per county. We created  variables in order to join data sets and visualize our variables. We selected nine counties in the ,please see the data dictionary for a detailed description.
 
-Analytic methods: We joined variables in the euro_mpx and pop_denom datasets to determine risk by country. We categorized countries into four regions within Europe and then joined the country_regions data set to aggregate risk by region. We also looked at the association between country risk and the percentage of the country population that is male and aged 15-29. This was an ecological analysis because we did not have demographic data for cases, only counts per day per country.
+Analytic Methods, we made tables and plots. The first set of our table sare summary descriptive statistics and plot compares the data collected and measures of association obtained between the fourth quarter of 2022 and first quarter of 2023 as well as the vaccination coverage for COVID-19, in the pediatric population . The second set of table and plot compares flu incidence rate per 1000 population with Covid-19 vaccination coverage per 100 population for October - December 2022. The third set of table and plot compares flu severity incidence rate per 1000 population with Covid-19 vaccination coverage per 100 population for October - December 2022. The fourth set of table and plot compares flu incidence rate per 1000 population with Covid-19 vaccination coverage per 100 population for January - March 2023.The fifth set of table and plot compares flu severity incidence rate per 1000 population with Covid-19 vaccination coverage per 100 population for January - March 2023.
 
 ## Results
 
-The percentage of the total population that are men aged 15 - 29 varies slightly by European region (see Chart 1). Most of the countries in Northern Europe had percentages of young men above the median value of 9.6%, while most countries in Western Europe had percentages of young men below the median value of 9.6%. Table 1 shows us that the monthly incidence of monkeypox per 100,000 people increases between May and July 2022 (peaking during the month of July) and begins to decrease in August 2022. Incidence is highest in the southern region of Europe in July 2022( 0.09/100,000) followed by western Europe in July 2022 (0.07/100,000). Based on the scatterplot in Chart 2, there does not appear to be a strong correlation between the percentage of men aged 15-29 and the country's total risk of monkeypox per 100,000 people. The range of % of men in this age category is 7.86%-11.85%, and the range of monkeypox risk by country is 0.06-13.27.
+Covid Vaccination Rate Metrics & Summarize
+Joining data-sets
+After the calculation of flu incidence per 1000 in pediatric population in the staete of    California for the flu season ( 2022 and  2023), and the calculation of vaccination coverage per county, the cleaned sim_ca_la_incidence and ca_vax_rates_grouped were joined.
 
+Vistualizations
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -232,6 +230,7 @@ final_flu <- final_flu %>%
   )
 class(final_flu$dt_diagnosis)
 final_flu <- final_flu %>% select(-mo_dt_dx,-day_dt_dt)
+
 ```
 
 
@@ -282,12 +281,17 @@ df3_new_missing <- df3_new_missing %>%
     day_dt_vax = format(quarter, "%d")
   )
 class(df3_new_missing$quarter)
-df3_new_missing <-  df3_new_missing %>% select(-mo_dt_vax,-day_dt_vax)
+df3_new_missing <-  df3_new_missing %>% select(-mo_dt_vax,-day_dt_vax) %>%
+  mutate(vacc_rate = (cumulative_fully_vaccinated/population)*100)
 ```
 
-
+Table 1: Summary statistics of California flu showing demographic variables and severity for 2022 and 2023
 ```{r, echo=FALSE, message=FALSE}
 library(gtsummary)
+#filtering rows out of selected columns (county, age_category, dt_diagnosis), population at risk #0-17 years
+unique(final_flu$county)
+subset_final_flu <- final_flu %>% select(sex, age_category, incidence, dt_diagnosis, county) %>% filter(age_category== "0-17" & sex== "MALE" )
+#subset_final_flu %>% select(county %in% c("Alameda County","Contra Costa County","San Francisco County","Los Angeles","Sacramento County"))
 #summary statistics of joint California flu dataset (final_flu)
  tbl_summary_1 <- final_flu %>%
   select(sex, new_infections, prevalence, new_recovered, new_severe, current_infected, yr_dt_dx, new_recovered,count_susceptible, cumulative_severe, cumulative_recovered, new_unrecovered, age_category) %>% tbl_summary(by=age_category, statistic = list(
@@ -296,31 +300,38 @@ library(gtsummary)
   )
  tbl_summary_1
 ```
+Table 2: Summary descriptive statistics of COVID vaccination in California between 2020-2023
 
-
-```{r, echo=FALSE, message=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # summary statistics for vaccination dataset (df3_new_missing)
 library(formattable)
-subset_df3_new_missing <- df3_new_missing %>% select(age_category, sex, cumulative_fully_vaccinated, cumulative_up_to_date_vax, yr_dt_vax)
+#to join all 3 data sets
+subset_df3_new_missing <- df3_new_missing %>% select(age_category, sex, vacc_rate,county)  %>% 
+filter(age_category == "0-17") 
+join_flu_vax <- left_join(subset_final_flu, subset_df3_new_missing,)
 
-formattable(head(subset_df3_new_missing, 10), list(
-  col.names = gsub("_", " ", names(subset_df3_new_missing)),
-  caption = "Portion of Summary Statistic of simulated data set from California and vaccination rates of COVID 19"
-))
-describe(subset_df3_new_missing)
+df3_new_missing %>% summarise(mean_vacc=mean(vacc_rate),
+                              mean_cum_ful_vac=mean(cumulative_fully_vaccinated),
+                              sd_= sd(cumulative_fully_vaccinated),
+                              range_year=range(yr_dt_vax),
+                              min_cum_todate_vax=min(cumulative_up_to_date_vax),
+                              max_cum_uptodate_vax=max(cumulative_up_to_date_vax))
+describe(df3_new_missing)
   
 ```
 
-
-```{r include=FALSE}
+Chart: Flu incidence rate in pediatric population of the Bay Area during the Flu season of 2022 and 2023
+```{r echo=FALSE, message=FALSE}
 library(dplyr)
-#kable(subset_df3_new_missing, booktabs = T, caption = "California quarterly COVID vaccination #rates by year, age group and sex in different counties") %>% group_rows("0-17years", 1, 10)
-  #footnote(general = "California  simulated morbidity flu data",
-  #general_title = "Data Source") %>% 
-  #kable_styling(full_width = T)
-#to join all 3 data sets
-#join_flu_vax <- left_join(final_flu, df3_new_missing, by = c("county", "age_category"))
-#join_flu_vax <- left_join(final_flu, df3_new_missing, by = "age_category")
+ggplot(final_flu, aes(x= county, y= incidence)) +
+    geom_bar(stat = "identity", color = "blue", fill = "blue") +
+  labs(x = "County", y = "incidence" ,
+   title = "Flu incidence in paediatrics age 0-17 years for California counties , 2022-2023") +
+  theme(axis.text.x = element_text(size = 6, angle = 45)) #+theme_bw()
+
+?geom_bar
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 ```
 
