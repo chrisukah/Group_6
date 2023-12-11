@@ -1,7 +1,7 @@
 ---
 title: "Final Project:Milestones 6, Flu outbreak (simulated) and vaccine uptake in California"
 author: "Ngu Claudia Ngeha, Ukah Chrisntus Eweh"
-date: "`r Sys.Date()`"
+date: "12/10/2023"
 output:
   html_document: default
   
@@ -21,8 +21,6 @@ library(ggrepel)
 ```
 ##Rpubs link : https://rpubs.com/nguclaudy/1127973
 
-##Rpubs link: https://rpubs.com/chrisukah/1127732
-
 
 ## Research Question
 
@@ -41,17 +39,16 @@ Once we downloaded our the data sets, we cleaned the data sets by renaming the s
 
 We then combined California data sets using cbind function, and chose the demographic strata of interest for final_flu by filtering rows out of selected columns (county, age_cat, dt_diagnosis), population at risk 0-17 years, pediatric population selection of dates prior to flu season and right after flu season 2022- 2023. After reviewing the dates from both data frames, dates of vaccination were selected according to the flu vaccine release, September 2022. Followed by tidying COVID-19 vaccination rates data of interest by pivoting data from ca_vax_rates_quarter to extract the age category. At this point all NULL values were converted to NAs. Defined our at risk population to be 0-17 under one category and removed NAs.
 
-Vaccination data was grouped and filtered by county, year, sex and age_category, and calculated sum of each numeric category and calculated proportion of vaccinated population per county per 100 population.The flu data set was further cleaned to new data frame with the following variables:county, date_diagnosis, age_category, sex, race_ethnicity, new_severe, infected_current, new_recovered, total population. New variables; incidence and prevalence of infection were created. Vaccination period and flu incidence data sets were aligned and dates were converted into day, month, year . At this point incidence for pediatric population and severity of incidence was calculated per county. We created  variables in order to join data sets and visualize our variables. We selected nine counties in the ,please see the data dictionary for a detailed description.
+Vaccination data was grouped and filtered by county, year, sex and age_category, and calculated sum of each numeric category and calculated proportion of vaccinated population per county per 100 population.The flu data set was further cleaned to new data frame with the following variables:county, date_diagnosis, age_category, sex, race_ethnicity, new_severe, infected_current, new_recovered, total population. New variables; incidence and prevalence of infection were created. Vaccination period and flu incidence data sets were aligned and dates were converted into day, month, year . At this point incidence for pediatric population and severity of incidence was calculated per county. We created  variables in order to join data sets and visualize our variables. The final flu dataset nd the COVID vaccination datasets were then aggregated using the left join. We selected nine counties in the ,please see the data dictionary for a detailed description.
 
 Analytic Methods, we made tables and plots. The first set of our table sare summary descriptive statistics and plot compares the data collected and measures of association obtained between the fourth quarter of 2022 and first quarter of 2023 as well as the vaccination coverage for COVID-19, in the pediatric population . The second set of table and plot compares flu incidence rate per 1000 population with Covid-19 vaccination coverage per 100 population for October - December 2022. The third set of table and plot compares flu severity incidence rate per 1000 population with Covid-19 vaccination coverage per 100 population for October - December 2022. The fourth set of table and plot compares flu incidence rate per 1000 population with Covid-19 vaccination coverage per 100 population for January - March 2023.The fifth set of table and plot compares flu severity incidence rate per 1000 population with Covid-19 vaccination coverage per 100 population for January - March 2023.
 
 ## Results
 
-Covid Vaccination Rate Metrics & Summarize
+COVID Vaccination Rate Metrics & Summarize
 Joining data-sets
 After the calculation of flu incidence per 1000 in pediatric population in the staete of    California for the flu season ( 2022 and  2023), and the calculation of vaccination coverage per county, the cleaned sim_ca_la_incidence and ca_vax_rates_grouped were joined.
 
-Vistualizations
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -155,7 +152,7 @@ sum(is.na(df3_new_missing))#to check if any more missing in df
 
 ```
 
-```{r , include=FALSE,warning=FALSE, message=FALSE}
+```{r , include=FALSE, warning=FALSE, message=FALSE}
 ##Re code Male =1 and Female = 2
 #df2_new$sex <- ifelse(df2_new$sex == "MALE", 1, 2)
 ```
@@ -290,15 +287,16 @@ df3_new_missing <-  df3_new_missing %>% select(-mo_dt_vax,-day_dt_vax) %>%
   mutate(vacc_rate = (cumulative_fully_vaccinated/population)*100)
 ```
 
-Table 1: Summary statistics of California flu showing demographic variables and severity for 2022 and 2023
 
 From Table 1, the proportion of females and males in the different age groups was almost the same. The proportion of men exceeded that of women in the age group 18-49 by 1% and the proportion of females within the age group 65+ exceeded that of men by 1%. The highest number of new infections were experienced within the age group 18-49. The recovery rate was highest within the age group 18-49. The severity of the virus was highest within the age groups 50-64 and 65+. 
 Vaccination rate showed to have increased in 2023 as compared to 2022 within all the different age groups.
 
+Table 1: Summary statistics of California State flu season, showing demographic variables and severity for 2022 and 2023
 ```{r, echo=FALSE, message=FALSE}
 library(gtsummary)
 #filtering rows out of selected columns (county, age_category, dt_diagnosis), population at risk #0-17 years
-unique(final_flu$county)
+#to view unique counties we use the unique function
+#unique(final_flu$county)
 subset_final_flu <- final_flu %>% select(sex, age_category, incidence, dt_diagnosis, county) %>% filter(age_category== "0-17" & sex== "MALE" )
 #subset_final_flu %>% select(county %in% c("Alameda County","Contra Costa County","San Francisco County","Los Angeles","Sacramento County"))
 #summary statistics of joint California flu dataset (final_flu)
@@ -309,33 +307,35 @@ subset_final_flu <- final_flu %>% select(sex, age_category, incidence, dt_diagno
   )
  tbl_summary_1
 ```
+(Source:Data sets from California department of Public Health, simulated California flu data for 2022 and 2023 seasons
+
 Table 2: Summary descriptive statistics of COVID vaccination in California between 2020-2023
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # summary statistics for vaccination dataset (df3_new_missing)
 library(formattable)
-#to join all 3 data sets
+#Use left join to join all 3 data sets to have join_flu_vax
 subset_df3_new_missing <- df3_new_missing %>% select(age_category, sex, vacc_rate,county)  %>% 
 filter(age_category == "0-17") 
 join_flu_vax <- left_join(subset_final_flu, subset_df3_new_missing,)
 
-df3_new_missing %>% summarise(mean_vacc=mean(vacc_rate),
-                              mean_cum_ful_vac=mean(cumulative_fully_vaccinated),
-                              sd_= sd(cumulative_fully_vaccinated),
-                              range_year=range(yr_dt_vax),
-                              min_cum_todate_vax=min(cumulative_up_to_date_vax),
-                              max_cum_uptodate_vax=max(cumulative_up_to_date_vax))
-describe(df3_new_missing)
+formattable(tail(df3_new_missing, 10), list(
+  col.names = gsub("_", " ", names(df3_new_missing)),
+  caption = "Portion of Summary Statistic of COVID vaccination data 2020-2023"
+))
+
   
 ```
-
-Chart: Flu incidence rate in pediatric population of the Bay Area during the Flu season of 2022 and 2023
+Figure 1:
+Chart: Flu incidence in pediatric population of California state during the Flu season of 2022 and 2023
 ```{r echo=FALSE, message=FALSE}
 library(dplyr)
 ggplot(final_flu, aes(x= county, y= incidence)) +
     geom_bar(stat = "identity", color = "blue", fill = "blue") +
   labs(x = "County", y = "incidence" ,
-   title = "Flu incidence in paediatrics age 0-17 years for California counties , 2022-2023") +
+   title = "Flu incidence in paediatrics age 0-17 years for California counties , 2022-2023",
+   subtitle = "county in California- USA and incidence are new cases of persons infected in a specific population",
+       caption="source:Data from a simulated California flu season joint with regional vaccination from California Department of Public Health") +
   theme(axis.text.x = element_text(size = 6, angle = 45)) #+theme_bw()
 
 ?geom_bar
@@ -354,26 +354,38 @@ counties_NtoZ <- final_flu %>% filter(substr(county, 1, 1) %in% LETTERS[14:26])
 ggplot(counties_AtoM, aes(x = county, y = incidence)) +
   geom_bar(stat = "identity", color = "orange", fill = "orange") +
   labs(x = "County", y = "incidence",
-       title = "Flu incidence in paediatrics age 0-17 years for California counties (A-M), 2022-2023") +
+       title = "Flu incidence in paediatrics age 0-17 years for California counties (A-M), 2022-2023",
+       subtitle = "county in California-USA and incidence are new cases of persons infected in a specific population",
+       caption="source:Data from a simulated California flu season joint with regional vaccination from California Department of Public Health") +
   theme(axis.text.x = element_text(size = 6, angle = 45))
 ```
+Figure 2: Flu incidence in paediatrics age category, 0-17 years for California counties (A-M), 2022-2023
 
-From the figure above, flu incidence was lowest in Alameda County which reported about 5000 new cases and was highest in Colusa County, Del Norte County, Inyo County, Lassen County, and Monterey County which reported about 24000 new cases per total population.
+
+From the figure 2 above, flu incidence was lowest in Alameda County which reported about 5000 new cases and was highest in Colusa County, Del Norte County, Inyo County, Lassen County, and Monterey County which reported about 24000 new cases per total population.
 
 ```{r echo=FALSE, message=FALSE}
 # Visualization for counties N-Z
 ggplot(counties_NtoZ, aes(x = county, y = incidence)) +
   geom_bar(stat = "identity", color = "darkgreen", fill = "darkgreen") +
   labs(x = "County", y = "incidence",
-       title = "Flu incidence in paediatrics age 0-17 years for California counties (N-Z), 2022-2023") +
+       title = "Flu incidence in paediatrics age 0-17 years for California counties (N-Z), 2022-2023",
+       subtitle = "county in California-USA and incidence are new cases of persons infected in a specific population",
+       caption="source:Data from a simulated California flu season joint with regional vaccination from California Department of Public Health") +
   theme(axis.text.x = element_text(size = 6, angle = 45))
 ```
+Figure 3:Flu incidence in paediatrics age category, 0-17 years for California counties (N-Z), 2022-2023
+
+From figure 3 above, Tehama County has the lowest incidence while Nevada is among the counties with highest incidence of flu for ages 0-17 years for the flu period compared to other counties on the graph.
+
 ```{r echo=FALSE, message=FALSE}
 # Visualization for counties A-M with different fill colors for each county
 ggplot(counties_AtoM, aes(x = county, y = incidence, fill = county)) +
   geom_bar(stat = "identity", color = "blue") +
   labs(x = "County", y = "incidence",
-       title = "Flu incidence in paediatrics age 0-17 years for California counties (A-M), 2022-2023") +
+       title = "Flu incidence in paediatrics age 0-17 years for California counties (A-M), 2022-2023",
+       subtitle = "county in USA and incidence are new cases of persons infected in a specific population",
+       caption="source:Data from a simulated California flu season joint with regional vaccination from California Department of Public Health") +
   theme(axis.text.x = element_text(size = 6, angle = 45)) +
   scale_fill_manual(values = rainbow(nrow(counties_AtoM)))
 
@@ -385,14 +397,19 @@ ggplot(counties_NtoZ, aes(x = county, y = incidence, fill = county)) +
   theme(axis.text.x = element_text(size = 6, angle = 45)) +
   scale_fill_manual(values = rainbow(nrow(counties_NtoZ)))
 ```
+figure 4: Flu incidence in age category, 0-17 years for California counties (A-M) and (N-Z), 2022-2023 with legend representing counties
 
-
-
-
-
-
-Discussion
-
+```{r, echo=FALSE}
+ggplot(final_flu, aes(x = age_category, color = sex, fill = sex)) +
+geom_density(alpha = 0.5) +
+  labs(x = "County", y = "incidence",
+       title = "Flu distribution by age categories for males in California , 2022-2023")
+```
+ Figure 5: Graph showing incidence of flu across different age categories in California counties
+ 
+ From the above graph it is evident that the highest hit age group by flu is age grou 0-17.
+ 
+## Discussion
 
 The new infection rate of the virus was highest in the age group 18-49 years. This could be due to the fact that, this age group is the most active age group. The mobility of the persons might have exposed more to infection as compared to their less active younger and older age group counterparts. The severity of the virus was shown to be more in the older age groups. This could be due to the fact that, age group usually comes with increase cormodities from different non communicable diseases which have been shown to be positively associated to severity of the virus.
 In the obtained data from the Bay Area Counties in pediatric population during the observed period (Oct-2022 to Mar-2023), there was an increase of 3.4 times in the flu cases despite the same proportion of coverage of COVID-19 vaccination in the Bay Area with no significant differences in morbidity.
@@ -400,9 +417,12 @@ In the obtained data from the Bay Area Counties in pediatric population during t
 Our analysis revealed no relation between COVID-19 vaccination and flu cases in the Bay Area counties in pediatric population. Despite the exponential increase of cases between the Q4 of 2022 to the Q1 of 2023, the incidence of severe cases was similar.
 Our findings demonstrates the importance of implementing intensified outreach efforts for flu vaccination in the pediatric population of the Bay Area, with a strategic emphasis on targeted interventions to enhance coverage and mitigate the impact of influenza in this demographic.
 
-Conclusion
-
+## Conclusion
 
 A coordinated effort in required from multidisciplinary sectors to ensure the virus incidence is greatly reduced and subsequently eradicated.
 
+```{r, echo=FALSE}
+
+
+```
 
